@@ -5,6 +5,17 @@ import {
 
 const n = (en: string, ar: string): L10n => ({ en, ar });
 
+/** Representative stock photography (Unsplash / Wikimedia Commons) – replace with your own dishes. */
+const IMAGES: Record<string, string> = {
+  margherita: "margherita", "pepperoni-classic": "pepperoni", "garden-harvest": "garden", "ranch-supreme": "supreme", "bbq-fire": "bbq",
+  "pesto-verde": "pesto-pizza", "truffle-mushroom": "mushroom-pizza", "nutella-banana": "crepe-banana", "strawberry-dream": "crepe-berry",
+  "chicken-mushroom-crepe": "crepe-plain", "dark-nut-crepe": "pancakes", "classic-smash": "burger-classic", "double-stack": "burger-double",
+  "veggie-crunch": "burger-veg", "spicy-chicken": "burger-spicy", "penne-arrabbiata": "pasta-penne", "alfredo-chicken": "pasta-fettuccine",
+  "pesto-pasta": "pasta-pesto", "garlic-knots": "garlic-knots", "mozzarella-sticks": "mozzarella-sticks", "choco-lava": "dessert-brownie",
+  tiramisu: "tiramisu", "cinnamon-rolls": "cinnamon", "lemon-mint": "drink-mint", "strawberry-fizz": "drink-fizz", "iced-tea": "drink-cola",
+  "pizza-duo": "combo-pizza", "burger-meal": "combo-burger",
+};
+
 interface P {
   id: string;
   cat: CategoryId;
@@ -48,6 +59,7 @@ const p = (x: P): Product => {
     description: x.desc,
     basePrice: x.price,
     art: x.art,
+    image: `/img/${IMAGES[x.id]}.jpg`,
     customizer: x.cust ?? null,
     options,
     defaults,
@@ -197,10 +209,10 @@ export const products: Product[] = [
     desc: n("Strawberry purée topped with sparkling water.", "هريس الفراولة مع مياه غازية."),
     price: 48, art: "drink", options: drinkOptions, tags: ["vegan", "vegetarian"], badges: ["new"],
     ing: [n("Strawberry", "فراولة"), n("Sparkling water", "مياه غازية")], pop: 62 }),
-  p({ id: "iced-latte", cat: "drinks", name: n("Iced Latte", "آيس لاتيه"),
-    desc: n("Double espresso over cold milk.", "إسبريسو مزدوج فوق حليب بارد."),
-    price: 52, art: "drink", options: drinkOptions, tags: ["vegetarian"], allergens: ["dairy"],
-    ing: [n("Espresso", "إسبريسو"), n("Milk", "حليب")], pop: 58 }),
+  p({ id: "iced-tea", cat: "drinks", name: n("Iced Lime Tea", "شاي مثلج بالليمون"),
+    desc: n("Chilled black tea over ice with fresh lime.", "شاي أسود بارد فوق الثلج مع ليمون طازج."),
+    price: 52, art: "drink", options: drinkOptions, tags: ["vegan", "vegetarian"],
+    ing: [n("Black tea", "شاي أسود"), n("Lime", "ليمون")], pop: 58 }),
 
   p({ id: "pizza-duo", cat: "combos", name: n("Pizza Duo Combo", "كومبو بيتزا دو"),
     desc: n("Margherita + Pepperoni Classic + two drinks.", "مارجريتا + ببروني كلاسيك + مشروبان."),

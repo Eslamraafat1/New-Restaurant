@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { ProductExperience } from "@/components/product/ProductExperience";
 import { products } from "@/data/demo/products";
 import { getProduct } from "@/lib/api/products";
@@ -23,9 +24,17 @@ export async function generateMetadata({ params }: PageProps<"/product/[slug]">)
   return p ? { title: p.name.en, description: p.description.en } : { title: "Not found" };
 }
 
-export default async function ProductPage({ params }: PageProps<"/product/[slug]">) {
+async function ProductContent({ params }: { params: PageProps<"/product/[slug]">["params"] }) {
   const { slug } = await params;
   const product = await load(slug);
   if (!product) notFound();
   return <ProductExperience product={product} />;
+}
+
+export default function ProductPage({ params }: PageProps<"/product/[slug]">) {
+  return (
+    <Suspense fallback={<div className="wrap grid gap-8 py-12 lg:grid-cols-2"><div className="skeleton aspect-square" /><div className="skeleton h-96" /></div>}>
+      <ProductContent params={params} />
+    </Suspense>
+  );
 }

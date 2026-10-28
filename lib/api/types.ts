@@ -60,6 +60,8 @@ export interface Product {
   description: L10n;
   basePrice: number;
   art: ArtKind;
+  /** path under /public, e.g. /img/margherita.jpg */
+  image: string;
   customizer: CustomizerKind;
   options: OptionGroup[];
   /** the product's default configuration. Choices listed here are included in the base price. */
@@ -86,6 +88,7 @@ export interface Ingredient {
   name: L10n;
   note: L10n;
   color: string;
+  image: string;
 }
 
 export interface Offer {

@@ -60,7 +60,7 @@ export function SearchDialog() {
           <li key={p.id} id={`sr-${p.id}`} role="option" aria-selected={i === active}>
             <button type="button" onClick={() => go(p.slug)} onMouseEnter={() => setActive(i)}
               className={`flex w-full items-center gap-3 rounded-2xl p-2 text-start ${i === active ? "bg-bg2" : ""}`}>
-              <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-bg2 p-1"><ProductArt product={p} className="h-full w-full" /></span>
+              <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-bg2"><ProductArt product={p} sizes="56px" className="h-full w-full" /></span>
               <span className="min-w-0 flex-1 truncate font-bold">{l(p.name)}</span>
               <span className="font-extrabold tabular-nums">{money(p.basePrice)}</span>
             </button>

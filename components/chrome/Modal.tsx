@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
@@ -60,7 +60,8 @@ export function Modal({
     : side === "bottom" ? "inset-x-0 bottom-0 max-h-[88dvh] rounded-t-3xl"
     : "relative w-[min(100%,64rem)] max-h-[92dvh] rounded-3xl";
 
-  if (typeof document === "undefined") return null;
+  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
+  if (!mounted) return null;
   return createPortal(
     <AnimatePresence>
       {open && (

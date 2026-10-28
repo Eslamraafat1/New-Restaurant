@@ -127,9 +127,9 @@ function Stage({ product, config }: { product: Product; config: Config }) {
       {kind === "burger" && <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/10 to-transparent" />}
       <motion.div
         initial={{ opacity: 0, scale: 0.6, rotate: -25 }} animate={{ opacity: 1, scale, rotate: 0 }}
-        transition={{ type: "spring", stiffness: 120, damping: 16 }} className="w-[88%]"
+        transition={{ type: "spring", stiffness: 120, damping: 16 }} className="aspect-square w-[88%]"
       >
-        <ProductArt product={product} config={config} live className="h-full w-full drop-shadow-[0_30px_30px_rgba(60,20,5,.35)]" />
+        <ProductArt product={product} config={config} live sizes="(max-width: 1024px) 90vw, 45vw" className={`h-full w-full ${product.customizer === "pizza" ? "" : "rounded-[2rem] shadow-2xl"}`} />
       </motion.div>
       <span className="sr-only">{l(product.name)}</span>
     </div>

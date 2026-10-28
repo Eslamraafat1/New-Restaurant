@@ -140,9 +140,26 @@ export interface PizzaSVGProps {
   mode?: "motion" | "plain";
   className?: string;
   title?: string;
+  /** when set, a real photograph is the base (sauce/cheese/dough vectors are skipped) and chips are real cut-outs */
+  photo?: string;
 }
 
-export function PizzaSVG({ layers = FULL_LAYERS, mode = "motion", className, title }: PizzaSVGProps) {
+/** Real photographic cut-outs (public/img/cut) used as topping pieces in photo mode. */
+const CHIPS: Partial<Record<ToppingKind, { files: string[]; size: number }>> = {
+  pepperoni: { files: ["pep1", "pep2", "pep3"], size: 42 },
+  mushroom: { files: ["mush1"], size: 34 },
+  olive: { files: ["olive1", "olive2"], size: 24 },
+  basil: { files: ["basil1", "basil2", "basil3"], size: 50 },
+};
+
+function Chip({ kind, slot }: { kind: ToppingKind; slot: number }) {
+  const c = CHIPS[kind];
+  if (!c) return <ToppingShape kind={kind} />;
+  const s = c.size;
+  return <image href={`/img/cut/${c.files[slot % c.files.length]}.png`} x={-s / 2} y={-s / 2} width={s} height={s} style={{ filter: "drop-shadow(0 2px 2px rgba(40,10,0,.45))" }} />;
+}
+
+export function PizzaSVG({ layers = FULL_LAYERS, mode = "motion", className, title, photo }: PizzaSVGProps) {
   const uid = useId().replace(/:/g, "");
   const motionMode = mode === "motion";
   const inner = layers.crust === "thin" ? 176 : layers.crust === "stuffed" ? 160 : 166;
@@ -173,6 +190,17 @@ export function PizzaSVG({ layers = FULL_LAYERS, mode = "motion", className, tit
 
       <ellipse cx="206" cy="214" rx="192" ry="186" fill="#000" opacity=".16" />
 
+      {photo ? (
+        <g data-l="photo">
+          <clipPath id={`ph-${uid}`}><circle cx="200" cy="200" r="190" /></clipPath>
+          <image href={photo} x="-45" y="-45" width="490" height="490" preserveAspectRatio="xMidYMid slice" clipPath={`url(#ph-${uid})`} />
+          {layers.cheese === "extra" && (
+            <g clipPath={`url(#ph-${uid})`}>{FLAKES.map((f, i) => <rect key={i} x={f.x - 8} y={f.y - 1.6} width="16" height="3.2" rx="1.6" fill="#fff3c4" opacity=".92" transform={`rotate(${f.rot} ${f.x} ${f.y})`} style={{ filter: "drop-shadow(0 1px 1px rgba(60,30,0,.5))" }} />)}</g>
+          )}
+          <circle cx="200" cy="200" r="190" fill="none" stroke="#000" strokeOpacity=".12" strokeWidth="2" />
+        </g>
+      ) : (
+        <>
       {/* dough + crust */}
       <g data-l="dough">
         <circle cx="200" cy="200" r="192" fill={`url(#crust-${uid})`} />
@@ -212,6 +240,9 @@ export function PizzaSVG({ layers = FULL_LAYERS, mode = "motion", className, tit
         )}
       </g>
 
+        </>
+      )}
+
       {/* toppings – each kind is its own group so it can be revealed/removed independently */}
       {TOPPING_KINDS.map((kind) => {
         const slots = slotsFor(kind, layers.toppings[kind]);
@@ -223,7 +254,7 @@ export function PizzaSVG({ layers = FULL_LAYERS, mode = "motion", className, tit
                 return (
                   <g key={`${kind}-${s}`} transform={`translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${p.rot.toFixed(0)})`}>
                     <Piece motionMode={motionMode} delay={idx * 0.025}>
-                      <ToppingShape kind={kind} />
+                      {photo ? <Chip kind={kind} slot={s} /> : <ToppingShape kind={kind} />}
                     </Piece>
                   </g>
                 );
@@ -236,12 +267,15 @@ export function PizzaSVG({ layers = FULL_LAYERS, mode = "motion", className, tit
       {/* surface drizzles & flakes */}
       <AnimatePresence>
         {layers.sauce === "ranch" && (
-          <motion.path key="ranch" data-l="drizzle" d={drizzle(7)} fill="none" stroke="#fffaf0" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"
+          <motion.path key="ranch" data-l="drizzle" d={drizzle(5)} fill="none" stroke="#fffaf0" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 1px 1px rgba(0,0,0,.45))" }}
             opacity=".92" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.9, ease: "easeOut" }} />
         )}
         {layers.sauce === "bbq" && (
-          <motion.path key="bbq" data-l="drizzle" d={drizzle(6)} fill="none" stroke="#4a1f0e" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"
+          <motion.path key="bbq" data-l="drizzle" d={drizzle(5)} fill="none" stroke="#4a1f0e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
             opacity=".85" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.9, ease: "easeOut" }} />
+        )}
+        {photo && layers.sauce === "pesto" && (
+          <motion.path key="pesto" data-l="drizzle" d={drizzle(5)} fill="none" stroke="#5f9230" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" opacity=".9" style={{ filter: "drop-shadow(0 1px 1px rgba(0,0,0,.4))" }} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.9, ease: "easeOut" }} />
         )}
         {layers.hot && (
           <motion.g key="hot" data-l="chili" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -271,12 +305,15 @@ function Piece({ children, delay = 0, motionMode }: { children: ReactNode; delay
 }
 
 function drizzle(rows: number): string {
+  // flowing, thin sauce lines: each row is a gentle S-curve, rows joined at the edges like a real zig-zag drizzle
   let d = "";
   for (let i = 0; i < rows; i++) {
-    const y = 70 + (i * 260) / (rows - 1);
-    const dx = Math.sqrt(Math.max(0, 140 * 140 - (y - 200) * (y - 200)));
-    const x1 = 200 - dx + 8, x2 = 200 + dx - 8;
-    d += i % 2 === 0 ? `${i === 0 ? "M" : "L"}${x1} ${y} L${x2} ${y} ` : `L${x2} ${y} L${x1} ${y} `;
+    const y = 80 + (i * 240) / (rows - 1);
+    const dx = Math.sqrt(Math.max(0, 128 * 128 - (y - 200) * (y - 200)));
+    const x1 = 200 - dx, x2 = 200 + dx, w = x2 - x1, up = i % 2 ? 11 : -11;
+    d += i % 2 === 0
+      ? `${i === 0 ? "M" : "L"}${x1} ${y} C${x1 + w / 3} ${y + up} ${x1 + (2 * w) / 3} ${y - up} ${x2} ${y} `
+      : `L${x2} ${y} C${x1 + (2 * w) / 3} ${y + up} ${x1 + w / 3} ${y - up} ${x1} ${y} `;
   }
   return d;
 }

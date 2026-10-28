@@ -4,8 +4,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Plus } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
+import { Photo } from "@/components/art/Photo";
 import { IngredientIcon, PizzaSVG, configToLayers, type ToppingKind } from "@/components/art/pizza";
-import { ProductArt } from "@/components/art/ProductArt";
 import { Rating } from "@/components/chrome/ui";
 import { ProductCard, useQuickAdd } from "@/components/menu/ProductCard";
 import { QuickView } from "@/components/menu/QuickView";
@@ -72,8 +73,8 @@ export function FlavorSwitch() {
         <div id="flavor-panel" role="tabpanel" aria-labelledby={`tab-${active}`} className="mt-10 grid items-center gap-8 md:grid-cols-2">
           <AnimatePresence mode="wait">
             <motion.div key={`art-${active}`} initial={{ opacity: 0, scale: 0.8, rotate: -12 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} exit={{ opacity: 0, scale: 0.85, rotate: 12 }} transition={{ duration: 0.35 }}
-              className="mx-auto aspect-square w-[min(80vw,26rem)]">
-              {top[0] && <ProductArt product={top[0]} className="h-full w-full drop-shadow-2xl" />}
+              className="arch relative mx-auto aspect-[4/5] w-[min(80vw,24rem)] shadow-2xl">
+              {top[0] && <Photo src={top[0].image} alt={l(top[0].name)} sizes="(max-width: 768px) 80vw, 24rem" />}
             </motion.div>
           </AnimatePresence>
           <AnimatePresence mode="wait">
@@ -109,7 +110,7 @@ export function FlavorSwitch() {
             <div className="mt-4 grid gap-4 sm:grid-cols-3">
               {suggestions.map((p) => (
                 <Link key={p.id} href={`/product/${p.slug}`} className="card group p-4 text-center">
-                  <div className="mx-auto aspect-square w-24 transition group-hover:scale-110"><ProductArt product={p} className="h-full w-full" /></div>
+                  <div className="relative mx-auto aspect-square w-24 overflow-hidden rounded-full transition group-hover:scale-110"><Photo src={p.image} sizes="96px" /></div>
                   <p className="mt-2 font-extrabold leading-tight">{l(p.name)}</p>
                   <p className="text-sm tabular-nums text-soft">{money(p.basePrice)}</p>
                 </Link>
@@ -155,7 +156,7 @@ export function ChefSignature() {
           {picks.map((p, i) => (
             <motion.article key={p.id} initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.7 }}
               className={`grid items-center gap-8 md:grid-cols-2 ${i % 2 ? "md:[&>*:first-child]:order-2" : ""}`}>
-              <div className="mx-auto aspect-square w-[min(80vw,26rem)] rounded-full" style={{ background: "radial-gradient(circle, #3a2a20, transparent 70%)" }}><ProductArt product={p} className="h-full w-full drop-shadow-[0_30px_30px_rgba(0,0,0,.6)]" /></div>
+              <div className={`arch relative mx-auto aspect-[4/5] w-[min(80vw,24rem)] shadow-[0_30px_60px_-20px_rgba(0,0,0,.8)] ${i % 2 ? "md:rotate-2" : "md:-rotate-2"}`}><Photo src={p.image} alt={l(p.name)} sizes="(max-width: 768px) 80vw, 24rem" /></div>
               <div>
                 <p className="display text-7xl text-[#ff7a5c] opacity-60">{String(i + 1).padStart(2, "0")}</p>
                 <h3 className="display text-4xl sm:text-5xl">{l(p.name)}</h3>
@@ -170,8 +171,8 @@ export function ChefSignature() {
         <div ref={root} aria-hidden="true" className="relative mt-24 h-[34rem] md:h-[46rem]">
           {gallery.map((p, i) => (
             <div key={p.id} data-depth={[14, 26, 10, 22, 34][i]} className={`absolute aspect-square ${pos[i]}`}>
-              <div className="floaty h-full w-full" style={{ ["--d" as string]: `${5 + i}s`, ["--r" as string]: `${(i - 2) * 4}deg` }}>
-                <ProductArt product={p} className="h-full w-full drop-shadow-[0_24px_24px_rgba(0,0,0,.55)]" />
+              <div className="floaty relative h-full w-full overflow-hidden rounded-[2rem] shadow-[0_24px_40px_-10px_rgba(0,0,0,.7)]" style={{ ["--d" as string]: `${5 + i}s`, ["--r" as string]: `${(i - 2) * 4}deg` }}>
+                <Photo src={p.image} sizes="(max-width: 768px) 40vw, 30vw" />
               </div>
             </div>
           ))}
@@ -182,10 +183,7 @@ export function ChefSignature() {
 }
 
 /* ───────────── Scene 8: fresh ingredients (+ extra 1: ingredient orbit) ───────────── */
-const ORBIT: { kind: ToppingKind | "tomato" | "cheese"; name: string }[] = [
-  { kind: "tomato", name: "tomato" }, { kind: "basil", name: "basil" }, { kind: "cheese", name: "mozzarella" },
-  { kind: "pepperoni", name: "pepperoni" }, { kind: "mushroom", name: "mushroom" }, { kind: "olive", name: "olive" },
-];
+const ORBIT = ["basil1", "pep1", "olive1", "mush1", "rasp1", "straw1", "basil2", "pep3"];
 
 export function FreshIngredients() {
   const { t, l } = useI18n();
@@ -195,15 +193,16 @@ export function FreshIngredients() {
         <p className="kicker">{t("ing.kicker")}</p>
         <h2 id="ing-h" className="display mt-2 max-w-3xl text-[clamp(2.4rem,6vw,5rem)]">{t("ing.title")}</h2>
 
-        {/* orbit – desktop */}
-        <div aria-hidden className="relative mx-auto mt-12 hidden aspect-square w-[min(60vw,34rem)] md:block">
-          <div className="absolute inset-[22%]"><PizzaSVG layers={configToLayers({ sauce: ["marinara"], toppings: ["pepperoni", "mushroom", "basil"] })} mode="plain" className="h-full w-full drop-shadow-2xl" /></div>
-          <div className="absolute inset-0" style={{ animation: "spin-slow 50s linear infinite" }}>
+        {/* orbit – desktop only; mobile gets the scrollable cards below */}
+        <div aria-hidden className="relative mx-auto mt-12 hidden aspect-square w-[min(60vw,36rem)] md:block">
+          <div className="absolute inset-[20%]"><Image src="/img/cut/pizza-cut.png" alt="" fill sizes="30vw" className="object-contain drop-shadow-2xl" /></div>
+          <div className="absolute inset-0" style={{ animation: "spin-slow 60s linear infinite" }}>
             {ORBIT.map((o, i) => (
-              <div key={o.name} className="absolute inset-0" style={{ transform: `rotate(${(i / ORBIT.length) * 360}deg)` }}>
-                <div className="absolute start-1/2 top-0 -ms-8" >
-                  <div style={{ animation: "spin-slow 50s linear infinite reverse", transform: `rotate(${-(i / ORBIT.length) * 360}deg)` }}>
-                    <div className="grid h-16 w-16 place-items-center rounded-full bg-surface shadow-lg ring-2 ring-line"><IngredientIcon kind={o.kind} size={40} /></div>
+              <div key={o} className="absolute inset-0" style={{ transform: `rotate(${(i / ORBIT.length) * 360}deg)` }}>
+                <div className="absolute start-1/2 top-0 -ms-[5%] w-[10%]">
+                  <div style={{ animation: "spin-slow 60s linear infinite reverse", transform: `rotate(${-(i / ORBIT.length) * 360}deg)` }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`/img/cut/${o}.png`} alt="" className="w-full drop-shadow-[0_8px_8px_rgba(40,10,0,.45)]" />
                   </div>
                 </div>
               </div>
@@ -211,13 +210,16 @@ export function FreshIngredients() {
           </div>
         </div>
 
-        <ul className="mt-12 flex snap-x gap-4 overflow-x-auto pb-4 md:grid md:grid-cols-3 md:overflow-visible" tabIndex={0} aria-label={t("ing.title")}>
+        <ul className="mt-12 flex snap-x gap-4 overflow-x-auto pb-4 [scrollbar-width:none] md:grid md:grid-cols-3 md:overflow-visible" tabIndex={0} aria-label={t("ing.title")}>
           {ingredients.map((g, i) => (
             <motion.li key={g.id} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: (i % 3) * 0.1, duration: 0.6 }}
-              className="card min-w-[16rem] shrink-0 snap-start p-6 md:min-w-0" style={{ transform: `translateY(${i % 2 ? 14 : 0}px)` }}>
-              <span className="mb-4 block h-12 w-12 rounded-full" style={{ background: g.color }} aria-hidden />
-              <h3 className="display text-2xl">{l(g.name)}</h3>
-              <p className="mt-1 text-soft">{l(g.note)}</p>
+              className="group relative aspect-[4/5] w-[70vw] max-w-72 shrink-0 snap-start overflow-hidden rounded-3xl md:w-auto md:max-w-none" style={{ marginTop: i % 3 === 1 ? 28 : 0 }}>
+              <Photo src={g.image} sizes="(max-width: 768px) 70vw, 30vw" className="transition duration-700 group-hover:scale-110" />
+              <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+                <h3 className="display text-3xl">{l(g.name)}</h3>
+                <p className="mt-1 text-sm text-white/85">{l(g.note)}</p>
+              </div>
             </motion.li>
           ))}
         </ul>
@@ -241,7 +243,7 @@ export function BuildYourOwn() {
   return (
     <section id="build" aria-labelledby="build-h" className="section" style={{ background: "var(--scene-pizza)" }}>
       <div className="wrap grid items-center gap-10 md:grid-cols-2">
-        <div className="mx-auto aspect-square w-[min(84vw,30rem)]"><PizzaSVG layers={configToLayers(config)} mode="motion" className="h-full w-full drop-shadow-2xl" title={t("build.title")} /></div>
+        <div className="relative mx-auto aspect-square w-[min(84vw,30rem)]"><div className="absolute inset-[4%] rounded-full shadow-[0_30px_50px_-12px_rgba(40,10,0,.55)]"><PizzaSVG photo={product.image} layers={configToLayers(config)} mode="motion" className="h-full w-full" title={t("build.title")} /></div></div>
         <div>
           <p className="kicker">{t("build.kicker")}</p>
           <h2 id="build-h" className="display mt-2 text-[clamp(2.4rem,6vw,5rem)]">{t("build.title")}</h2>
@@ -315,7 +317,7 @@ function ComboCard({ product, items, l, money, t }: { product: Product; items: P
   const save = separate - product.basePrice;
   return (
     <article className="card flex flex-col gap-4 p-6 sm:flex-row sm:items-center">
-      <div className="mx-auto aspect-square w-40 shrink-0"><ProductArt product={product} className="h-full w-full" /></div>
+      <div className="relative mx-auto aspect-square w-40 shrink-0 overflow-hidden rounded-3xl sm:w-44"><Photo src={product.image} alt={l(product.name)} sizes="176px" /></div>
       <div className="flex-1">
         <h3 className="display text-3xl"><Link href={`/product/${product.slug}`}>{l(product.name)}</Link></h3>
         <p className="mt-1 text-sm font-bold text-soft">{t("combo.includes")}</p>

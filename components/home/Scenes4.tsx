@@ -3,9 +3,7 @@
 import { ArrowRight, ChevronLeft, ChevronRight, Copy, MapPin, Plus, Star } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { DishSVG } from "@/components/art/others";
-import { PizzaSVG, FULL_LAYERS } from "@/components/art/pizza";
-import { ProductArt } from "@/components/art/ProductArt";
+import { Photo } from "@/components/art/Photo";
 import { Faq } from "@/components/chrome/Accordion";
 import { SampleTag } from "@/components/chrome/ui";
 import { useQuickAdd } from "@/components/menu/ProductCard";
@@ -19,10 +17,10 @@ import { Magnetic } from "./Magnetic";
 
 /* ───────────── marquee strip ───────────── */
 export function Marquee() {
-  const words = ["MARGHERITA", "CREPES", "SMASH BURGERS", "FRESH BASIL", "MOLTEN CHOCOLATE", "WOOD-FIRED SPIRIT"];
+  const words = [{ t: "MARGHERITA", img: "/img/margherita.jpg" }, { t: "CREPES", img: "/img/crepe-banana.jpg" }, { t: "SMASH BURGERS", img: "/img/burger-classic.jpg" }, { t: "FRESH PASTA", img: "/img/pasta-penne.jpg" }, { t: "MOLTEN CHOCOLATE", img: "/img/dessert-brownie.jpg" }, { t: "COLD DRINKS", img: "/img/drink-fizz.jpg" }];
   const row = (hidden: boolean) => (
     <ul className="flex shrink-0 items-center" aria-hidden={hidden || undefined}>
-      {words.map((w) => <li key={w} className="display flex items-center whitespace-nowrap px-6 text-3xl sm:text-5xl">{w}<span className="ms-12 text-gold">✦</span></li>)}
+      {words.map((w) => <li key={w.t} className="display flex items-center whitespace-nowrap px-5 text-3xl sm:text-5xl">{w.t}<span className="relative ms-8 inline-block h-12 w-12 overflow-hidden rounded-full border-2 border-white/80 sm:h-16 sm:w-16"><Photo src={w.img} sizes="64px" /></span><span className="ms-8 text-gold">✦</span></li>)}
     </ul>
   );
   return (
@@ -56,8 +54,8 @@ export function SweetFinale() {
     <section id="sweet" aria-labelledby="sweet-h" className="section" style={{ background: "linear-gradient(160deg, var(--scene-sweet), var(--bg-2))" }}>
       <div className="wrap grid items-center gap-10 md:grid-cols-2">
         <div ref={root} className="relative mx-auto aspect-square w-[min(84vw,30rem)]" aria-hidden="true">
-          <div data-sauce className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle at 50% 58%, #5a2c16 0 62%, #3a1a0d 63%)" }} />
-          <div data-cake className="absolute inset-0"><DishSVG kind="dessert" className="h-full w-full drop-shadow-2xl" /></div>
+          <div data-sauce className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle at 40% 35%, #6a3419, #2c130a 70%)", boxShadow: "inset 0 0 40px rgba(0,0,0,.5)" }} />
+          <div data-cake className="absolute inset-[6%] overflow-hidden rounded-full shadow-2xl"><Photo src="/img/dessert-brownie.jpg" alt="" sizes="(max-width: 768px) 80vw, 30rem" /></div>
         </div>
         <div>
           <p className="kicker" style={{ color: "#7a3d2a" }}>{t("sweet.kicker")}</p>
@@ -78,7 +76,7 @@ function DessertRow({ p }: { p: Product }) {
   const { add, done } = useQuickAdd(p);
   return (
     <li className="flex items-center gap-3 py-3">
-      <div className="h-14 w-14 shrink-0"><ProductArt product={p} className="h-full w-full" /></div>
+      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full"><Photo src={p.image} sizes="56px" /></div>
       <Link href={`/product/${p.slug}`} className="flex-1 text-lg font-extrabold hover:text-tomatotext">{l(p.name)}</Link>
       <span className="tabular-nums font-bold">{money(p.basePrice)}</span>
       <button type="button" className="icon-btn" onClick={add} aria-label={`${t("common.add")}: ${l(p.name)}`}>{done ? "✓" : <Plus size={18} aria-hidden />}</button>
@@ -114,7 +112,7 @@ function DrinkTile({ p, offset, l, money }: { p: Product; offset: boolean; l: (v
   const { add, done } = useQuickAdd(p);
   return (
     <article className={`relative rounded-[2rem] bg-white/50 p-5 text-center backdrop-blur-sm dark:bg-black/20 ${offset ? "sm:-translate-y-6" : ""}`} style={{ border: "1.5px solid rgb(255 255 255 / .5)" }}>
-      <Link href={`/product/${p.slug}`} className="mx-auto block aspect-square w-40"><ProductArt product={p} className="h-full w-full" /></Link>
+      <Link href={`/product/${p.slug}`} className="arch relative mx-auto block aspect-[3/4] w-full max-w-56 shadow-xl"><Photo src={p.image} alt={l(p.name)} sizes="(max-width: 640px) 60vw, 25vw" /></Link>
       <h3 className="display mt-2 text-2xl">{l(p.name)}</h3>
       <p className="text-soft">{money(p.basePrice)}</p>
       <button type="button" className="btn btn-primary mt-3" onClick={add}>{done ? t("common.added") : t("common.add")}</button>
@@ -152,8 +150,8 @@ export function KitchenStory() {
           <div className="mt-4"><SampleTag /></div>
           <Link href="/our-story" className="btn btn-primary mt-6">{t("common.explore")}<ArrowRight size={16} className="rtl:rotate-180" aria-hidden /></Link>
         </div>
-        <div data-photo aria-hidden className="mx-auto aspect-square w-[min(70vw,20rem)] rounded-[40%_60%_55%_45%/50%_45%_55%_50%] bg-[#3a2a20] p-6">
-          <PizzaSVG layers={FULL_LAYERS} mode="plain" className="h-full w-full -rotate-12" />
+        <div data-photo aria-hidden className="blob relative mx-auto aspect-square w-[min(70vw,22rem)] shadow-2xl">
+          <Photo src="/img/oven.jpg" sizes="320px" className="blob" />
         </div>
       </div>
     </section>
@@ -273,13 +271,11 @@ export function FaqSection() {
 export function FinalCta() {
   const { t } = useI18n();
   return (
-    <section id="final" aria-labelledby="final-h" className="grain relative isolate overflow-hidden bg-tomato py-24 text-white sm:py-32">
-      <div aria-hidden className="absolute -end-24 top-1/2 -z-10 w-[min(90vw,40rem)] -translate-y-1/2 opacity-90">
-        <PizzaSVG layers={FULL_LAYERS} mode="plain" className="h-full w-full drop-shadow-[0_40px_40px_rgba(0,0,0,.35)]" />
-      </div>
+    <section id="final" aria-labelledby="final-h" className="grain relative isolate overflow-hidden bg-tomato py-28 text-white sm:py-40">
+      <div aria-hidden className="absolute inset-0 -z-10"><Photo src="/img/hero-pizza.jpg" sizes="100vw" className="ken" /><div className="absolute inset-0" style={{ background: "linear-gradient(100deg, rgb(150 25 8 / .96) 8%, rgb(200 40 15 / .78) 45%, rgb(30 10 4 / .35))" }} /></div>
       <div className="wrap">
-        <h2 id="final-h" className="display max-w-3xl text-[clamp(3.4rem,13vw,10rem)]">{t("final.title")}</h2>
-        <p className="mt-4 max-w-sm text-xl font-semibold">{t("final.sub")}</p>
+        <h2 id="final-h" className="display max-w-3xl text-[clamp(3.4rem,13vw,10rem)] leading-[0.95]">{t("final.title")}</h2>
+        <p className="mt-8 max-w-sm text-xl font-semibold">{t("final.sub")}</p>
         <div className="mt-8"><Magnetic><Link href="/menu" className="btn btn-dark !min-h-16 !px-10 text-lg">{t("final.cta")}<ArrowRight size={20} aria-hidden className="rtl:rotate-180" /></Link></Magnetic></div>
       </div>
     </section>
