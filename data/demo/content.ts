@@ -3,12 +3,12 @@ import type { Branch, Ingredient, L10n, Offer } from "@/lib/api/types";
 const n = (en: string, ar: string): L10n => ({ en, ar });
 
 export const ingredients: Ingredient[] = [
-  { id: "tomato", name: n("Tomatoes", "الطماطم"), note: n("Crushed the day they arrive.", "تُهرس يوم وصولها."), color: "#d63a22", image: "/img/tomato.jpg" },
-  { id: "mozzarella", name: n("Mozzarella", "الموتزاريلا"), note: n("Milky, stretchy and melted slowly.", "كريمية وممطوطة وتذوب ببطء."), color: "#f6e9c8", image: "/img/cheese.jpg" },
-  { id: "basil", name: n("Basil", "الريحان"), note: n("Torn, never chopped.", "يُقطّع باليد لا بالسكين."), color: "#3f7a2c", image: "/img/basil.jpg" },
-  { id: "pepperoni", name: n("Pepperoni", "الببروني"), note: n("Thin-sliced so it cups and crisps.", "شرائح رفيعة تتقعّر وتقرمش."), color: "#b02a1b", image: "/img/pepperoni.jpg" },
-  { id: "mushroom", name: n("Mushrooms", "المشروم"), note: n("Seared before they meet the dough.", "يُحمّر قبل أن يلتقي بالعجين."), color: "#b79c7c", image: "/img/mushroom-pizza.jpg" },
-  { id: "chocolate", name: n("Chocolate", "الشوكولاتة"), note: n("Melted to order for every crepe.", "تُذاب عند الطلب لكل كريب."), color: "#4a2616", image: "/img/dessert-brownie.jpg" },
+  { id: "tomato", name: n("Tomatoes", "الطماطم"), note: n("Crushed the day they arrive.", "تُهرس يوم وصولها."), color: "#d63a22" },
+  { id: "mozzarella", name: n("Mozzarella", "الموتزاريلا"), note: n("Milky, stretchy and melted slowly.", "كريمية وممطوطة وتذوب ببطء."), color: "#f6e9c8" },
+  { id: "basil", name: n("Basil", "الريحان"), note: n("Torn, never chopped.", "يُقطّع باليد لا بالسكين."), color: "#3f7a2c" },
+  { id: "pepperoni", name: n("Pepperoni", "الببروني"), note: n("Thin-sliced so it cups and crisps.", "شرائح رفيعة تتقعّر وتقرمش."), color: "#b02a1b" },
+  { id: "mushroom", name: n("Mushrooms", "المشروم"), note: n("Seared before they meet the dough.", "يُحمّر قبل أن يلتقي بالعجين."), color: "#b79c7c" },
+  { id: "chocolate", name: n("Chocolate", "الشوكولاتة"), note: n("Melted to order for every crepe.", "تُذاب عند الطلب لكل كريب."), color: "#4a2616" },
 ];
 
 export const offers: Offer[] = [

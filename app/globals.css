@@ -265,3 +265,19 @@ html.lenis, html.lenis body { height: auto; }
 html[dir="rtl"] .display { line-height: 1.22; }
 html[dir="rtl"] .split-line { padding-block: 0.12em 0.2em; }
 html[dir="rtl"] .display.outline-text { line-height: 1; }
+
+/* intro curtain: JS slides it away; this fallback guarantees it never blocks the page */
+html.js .curtain { animation: curtain-away 0s 2.4s forwards; }
+@keyframes curtain-away { to { visibility: hidden; opacity: 0; pointer-events: none; } }
+@media (prefers-reduced-motion: reduce) { .curtain { display: none; } }
+
+.reel[data-motion="on"] .reel-scroll { overflow: hidden; }
+
+/* GSAP reveals start hidden via CSS (no flash, no hydration clash); a timed fallback guarantees visibility if JS never runs */
+html.js main [data-card],
+html.js main h2.display:not([data-no-reveal]),
+html.js main .kicker:not([data-no-reveal]) { opacity: 0; animation: reveal-fallback 0s 3.2s forwards; }
+@keyframes reveal-fallback { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  html.js main [data-card], html.js main h2.display, html.js main .kicker { opacity: 1; animation: none; }
+}

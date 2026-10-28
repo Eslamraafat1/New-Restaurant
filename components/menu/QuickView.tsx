@@ -15,7 +15,7 @@ function Body({ product, onClose }: { product: Product; onClose: () => void }) {
   return (
     <div className="grid max-h-[92dvh] overflow-y-auto md:grid-cols-2" data-lenis-prevent>
       <div className="grid place-items-center bg-bg2 p-8">
-        <div className="aspect-square w-full max-w-sm"><ProductArt product={product} live sizes="400px" className="h-full w-full rounded-3xl" /></div>
+        <div className="aspect-square w-full max-w-sm"><ProductArt product={product} live className="h-full w-full drop-shadow-2xl" /></div>
       </div>
       <div className="flex flex-col gap-3 p-6 pt-14 md:pt-8">
         <div className="flex flex-wrap gap-1.5">{product.badges.map((b) => <Badge key={b} kind={b} />)}</div>

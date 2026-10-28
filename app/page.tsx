@@ -1,6 +1,7 @@
 import { Hero } from "@/components/home/Hero";
 import { PizzaAssembly } from "@/components/home/PizzaAssembly";
-import { BurgerDrop, CrepeLab, SignatureCollection } from "@/components/home/Scenes2";
+import { SignatureReel } from "@/components/home/Reel";
+import { BurgerDrop, CrepeLab } from "@/components/home/Scenes2";
 import { BestSellers, BuildYourOwn, ChefSignature, Combos, FlavorSwitch, FreshIngredients } from "@/components/home/Scenes3";
 import { Drinks, FaqSection, Favorites, FinalCta, KitchenStory, LocationsSection, Marquee, OffersSection, SectionRail, SweetFinale } from "@/components/home/Scenes4";
 
@@ -11,7 +12,7 @@ export default function Home() {
       <div id="hero"><Hero /></div>
       <Marquee />
       <PizzaAssembly />
-      <SignatureCollection />
+      <SignatureReel />
       <CrepeLab />
       <BurgerDrop />
       <FlavorSwitch />

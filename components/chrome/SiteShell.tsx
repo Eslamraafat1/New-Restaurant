@@ -4,6 +4,9 @@ import Lenis from "lenis";
 import { useEffect, type ReactNode } from "react";
 import { LocaleSync, useI18n } from "@/lib/i18n";
 import { ThemeSync } from "@/lib/theme";
+import { Cursor } from "@/components/fx/Cursor";
+import { Curtain } from "@/components/fx/Curtain";
+import { ScrollFx } from "@/components/fx/ScrollFx";
 import { CartDrawer } from "./CartDrawer";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
@@ -35,6 +38,9 @@ export function SiteShell({ children }: { children: ReactNode }) {
       <LocaleSync />
       <ThemeSync />
       <SmoothScroll />
+      <ScrollFx />
+      <Curtain />
+      <Cursor />
       <ScrollProgress />
       <a href="#main" className="sr-only z-[200] rounded-full bg-tomato px-4 py-2 font-bold text-white focus:not-sr-only focus:fixed focus:start-3 focus:top-3">{t("nav.skip")}</a>
       <Header />

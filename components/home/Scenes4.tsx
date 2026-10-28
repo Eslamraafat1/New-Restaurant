@@ -3,7 +3,10 @@
 import { ArrowRight, ChevronLeft, ChevronRight, Copy, MapPin, Plus, Star } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Photo } from "@/components/art/Photo";
+import { DishSVG } from "@/components/art/others";
+import { PizzaSVG, FULL_LAYERS, IngredientIcon } from "@/components/art/pizza";
+import { Chars } from "@/components/fx/Chars";
+import { ProductArt } from "@/components/art/ProductArt";
 import { Faq } from "@/components/chrome/Accordion";
 import { SampleTag } from "@/components/chrome/ui";
 import { useQuickAdd } from "@/components/menu/ProductCard";
@@ -15,17 +18,35 @@ import { toast } from "@/lib/toast";
 import type { Product } from "@/lib/api/types";
 import { Magnetic } from "./Magnetic";
 
-/* ───────────── marquee strip ───────────── */
+/* ───────────── marquee strip (GSAP: speed + direction follow scroll velocity) ───────────── */
 export function Marquee() {
-  const words = [{ t: "MARGHERITA", img: "/img/margherita.jpg" }, { t: "CREPES", img: "/img/crepe-banana.jpg" }, { t: "SMASH BURGERS", img: "/img/burger-classic.jpg" }, { t: "FRESH PASTA", img: "/img/pasta-penne.jpg" }, { t: "MOLTEN CHOCOLATE", img: "/img/dessert-brownie.jpg" }, { t: "COLD DRINKS", img: "/img/drink-fizz.jpg" }];
+  const track = useRef<HTMLDivElement>(null);
+  const words = ["MARGHERITA", "CREPES", "SMASH BURGERS", "FRESH BASIL", "MOLTEN CHOCOLATE", "WOOD-FIRED SPIRIT"];
+  useEffect(() => {
+    const el = track.current;
+    if (!el || reducedMotion()) return;
+    const { gsap, ScrollTrigger } = getGsap();
+    const rtl = document.dir === "rtl";
+    const loop = gsap.to(el, { xPercent: rtl ? 50 : -50, ease: "none", duration: 28, repeat: -1 });
+    const st = ScrollTrigger.create({
+      onUpdate: (self) => {
+        const v = Math.min(8, Math.abs(self.getVelocity()) / 300);
+        gsap.to(loop, { timeScale: (self.direction === 1 ? 1 : -1) * (1 + v), duration: 0.25, overwrite: true });
+        gsap.to(loop, { timeScale: self.direction === 1 ? 1 : -1, duration: 1.2, delay: 0.3, overwrite: "auto" });
+        gsap.to(el, { skewX: Math.max(-12, Math.min(12, -self.getVelocity() / 250)), duration: 0.3, overwrite: "auto" });
+        gsap.to(el, { skewX: 0, duration: 0.8, delay: 0.3 });
+      },
+    });
+    return () => { st.kill(); loop.kill(); gsap.set(el, { clearProps: "all" }); };
+  }, []);
   const row = (hidden: boolean) => (
     <ul className="flex shrink-0 items-center" aria-hidden={hidden || undefined}>
-      {words.map((w) => <li key={w.t} className="display flex items-center whitespace-nowrap px-5 text-3xl sm:text-5xl">{w.t}<span className="relative ms-8 inline-block h-12 w-12 overflow-hidden rounded-full border-2 border-white/80 sm:h-16 sm:w-16"><Photo src={w.img} sizes="64px" /></span><span className="ms-8 text-gold">✦</span></li>)}
+      {words.map((w) => <li key={w} className="display flex items-center whitespace-nowrap px-6 text-3xl sm:text-5xl">{w}<span className="ms-12 text-gold">✦</span></li>)}
     </ul>
   );
   return (
     <div className="overflow-hidden bg-tomato py-4 text-white" aria-label="CRUST & CRAVE">
-      <div className="marquee-track">{row(false)}{row(true)}</div>
+      <div ref={track} className="flex w-max">{row(false)}{row(true)}</div>
     </div>
   );
 }
@@ -54,8 +75,8 @@ export function SweetFinale() {
     <section id="sweet" aria-labelledby="sweet-h" className="section" style={{ background: "linear-gradient(160deg, var(--scene-sweet), var(--bg-2))" }}>
       <div className="wrap grid items-center gap-10 md:grid-cols-2">
         <div ref={root} className="relative mx-auto aspect-square w-[min(84vw,30rem)]" aria-hidden="true">
-          <div data-sauce className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle at 40% 35%, #6a3419, #2c130a 70%)", boxShadow: "inset 0 0 40px rgba(0,0,0,.5)" }} />
-          <div data-cake className="absolute inset-[6%] overflow-hidden rounded-full shadow-2xl"><Photo src="/img/dessert-brownie.jpg" alt="" sizes="(max-width: 768px) 80vw, 30rem" /></div>
+          <div data-sauce className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle at 50% 58%, #5a2c16 0 62%, #3a1a0d 63%)" }} />
+          <div data-cake className="absolute inset-0"><DishSVG kind="dessert" className="h-full w-full drop-shadow-2xl" /></div>
         </div>
         <div>
           <p className="kicker" style={{ color: "#7a3d2a" }}>{t("sweet.kicker")}</p>
@@ -76,7 +97,7 @@ function DessertRow({ p }: { p: Product }) {
   const { add, done } = useQuickAdd(p);
   return (
     <li className="flex items-center gap-3 py-3">
-      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full"><Photo src={p.image} sizes="56px" /></div>
+      <div className="h-14 w-14 shrink-0"><ProductArt product={p} className="h-full w-full" /></div>
       <Link href={`/product/${p.slug}`} className="flex-1 text-lg font-extrabold hover:text-tomatotext">{l(p.name)}</Link>
       <span className="tabular-nums font-bold">{money(p.basePrice)}</span>
       <button type="button" className="icon-btn" onClick={add} aria-label={`${t("common.add")}: ${l(p.name)}`}>{done ? "✓" : <Plus size={18} aria-hidden />}</button>
@@ -112,7 +133,7 @@ function DrinkTile({ p, offset, l, money }: { p: Product; offset: boolean; l: (v
   const { add, done } = useQuickAdd(p);
   return (
     <article className={`relative rounded-[2rem] bg-white/50 p-5 text-center backdrop-blur-sm dark:bg-black/20 ${offset ? "sm:-translate-y-6" : ""}`} style={{ border: "1.5px solid rgb(255 255 255 / .5)" }}>
-      <Link href={`/product/${p.slug}`} className="arch relative mx-auto block aspect-[3/4] w-full max-w-56 shadow-xl"><Photo src={p.image} alt={l(p.name)} sizes="(max-width: 640px) 60vw, 25vw" /></Link>
+      <Link href={`/product/${p.slug}`} className="mx-auto block aspect-square w-40"><ProductArt product={p} className="h-full w-full" /></Link>
       <h3 className="display mt-2 text-2xl">{l(p.name)}</h3>
       <p className="text-soft">{money(p.basePrice)}</p>
       <button type="button" className="btn btn-primary mt-3" onClick={add}>{done ? t("common.added") : t("common.add")}</button>
@@ -150,8 +171,8 @@ export function KitchenStory() {
           <div className="mt-4"><SampleTag /></div>
           <Link href="/our-story" className="btn btn-primary mt-6">{t("common.explore")}<ArrowRight size={16} className="rtl:rotate-180" aria-hidden /></Link>
         </div>
-        <div data-photo aria-hidden className="blob relative mx-auto aspect-square w-[min(70vw,22rem)] shadow-2xl">
-          <Photo src="/img/oven.jpg" sizes="320px" className="blob" />
+        <div data-photo aria-hidden className="mx-auto aspect-square w-[min(70vw,20rem)] rounded-[40%_60%_55%_45%/50%_45%_55%_50%] bg-[#3a2a20] p-6">
+          <PizzaSVG layers={FULL_LAYERS} mode="plain" className="h-full w-full -rotate-12" />
         </div>
       </div>
     </section>
@@ -267,16 +288,48 @@ export function FaqSection() {
   );
 }
 
-/* ───────────── Scene 19: final CTA ───────────── */
+/* ───────────── Scene 19: final CTA — ingredients rain down, headline flips in letter by letter ───────────── */
+const RAIN = ["tomato", "basil", "pepperoni", "mushroom", "olive", "cheese"] as const;
+
 export function FinalCta() {
   const { t } = useI18n();
+  const root = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = root.current;
+    if (!el || reducedMotion()) return;
+    const { gsap, ScrollTrigger } = getGsap();
+    const stop = syncLenis();
+    const ctx = gsap.context(() => {
+      gsap.from("[data-char]", { yPercent: 130, rotateX: -90, opacity: 0, transformOrigin: "50% 100%", transformPerspective: 700, stagger: 0.05, duration: 0.9, ease: "power4.out", scrollTrigger: { trigger: el, start: "top 70%", once: true } });
+      gsap.from("[data-fcta]", { scale: 0.5, opacity: 0, duration: 0.8, delay: 0.5, ease: "back.out(2)", scrollTrigger: { trigger: el, start: "top 60%", once: true } });
+      gsap.to("[data-fcta]", { scale: 1.06, duration: 0.9, yoyo: true, repeat: -1, ease: "sine.inOut", delay: 1.5 });
+      // endless raining ingredients – only runs while the section is on screen
+      const drops = gsap.utils.toArray<HTMLElement>("[data-rain]");
+      const tweens = drops.map((d, i) => {
+        const fall = gsap.fromTo(d, { y: -140, rotation: -40 + ((i * 37) % 80) }, { y: () => el.offsetHeight + 140, rotation: () => 200 + ((i * 61) % 240), duration: 6 + (i % 5), ease: "none", repeat: -1, delay: -(i * 0.7), paused: true });
+        return fall;
+      });
+      ScrollTrigger.create({ trigger: el, start: "top bottom", end: "bottom top", onToggle: (self) => tweens.forEach((tw) => (self.isActive ? tw.play() : tw.pause())) });
+    }, el);
+    return () => { ctx.revert(); stop(); };
+  }, []);
+
   return (
-    <section id="final" aria-labelledby="final-h" className="grain relative isolate overflow-hidden bg-tomato py-28 text-white sm:py-40">
-      <div aria-hidden className="absolute inset-0 -z-10"><Photo src="/img/hero-pizza.jpg" sizes="100vw" className="ken" /><div className="absolute inset-0" style={{ background: "linear-gradient(100deg, rgb(150 25 8 / .96) 8%, rgb(200 40 15 / .78) 45%, rgb(30 10 4 / .35))" }} /></div>
+    <section ref={root} id="final" aria-labelledby="final-h" className="grain relative isolate overflow-hidden bg-tomato py-28 text-white sm:py-40">
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        {Array.from({ length: 14 }, (_, i) => (
+          <div key={i} data-rain className="absolute top-0 opacity-90" style={{ insetInlineStart: `${(i * 7.3) % 96}%` }}>
+            <IngredientIcon kind={RAIN[i % RAIN.length]} size={36 + (i % 4) * 14} className="drop-shadow-lg" />
+          </div>
+        ))}
+      </div>
       <div className="wrap">
-        <h2 id="final-h" className="display max-w-3xl text-[clamp(3.4rem,13vw,10rem)] leading-[0.95]">{t("final.title")}</h2>
+        <h2 id="final-h" data-no-reveal className="display max-w-3xl text-[clamp(3.4rem,13vw,10rem)] leading-[0.95]">
+          <Chars text={t("final.title")} className="[&_[data-char]]:[&]:inline-block" />
+        </h2>
         <p className="mt-8 max-w-sm text-xl font-semibold">{t("final.sub")}</p>
-        <div className="mt-8"><Magnetic><Link href="/menu" className="btn btn-dark !min-h-16 !px-10 text-lg">{t("final.cta")}<ArrowRight size={20} aria-hidden className="rtl:rotate-180" /></Link></Magnetic></div>
+        <div className="mt-8"><span data-fcta className="inline-block"><Magnetic><Link href="/menu" className="btn btn-dark !min-h-16 !px-10 text-lg">{t("final.cta")}<ArrowRight size={20} aria-hidden className="rtl:rotate-180" /></Link></Magnetic></span></div>
       </div>
     </section>
   );

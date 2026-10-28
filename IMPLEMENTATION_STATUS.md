@@ -1,5 +1,13 @@
 # Implementation status
 
+## Update – illustrated art restored + GSAP creative layer
+The stock-photo experiment was reverted by request; the layered SVG illustration art is back (palette, Arabic typography, responsive and hydration fixes kept).
+New GSAP/creative work: letter-flip hero with toppings flying in + 3D pointer tilt + scroll-out; pizza assembly with sauce splash, cheese rain, cut lines, ingredient callouts, steam;
+crepe heat-glow/shake/powdered sugar; burger shockwave rings + camera shake + sesame burst; pinned horizontal signature reel with 3D cards;
+velocity-driven skewing marquee; falling-ingredients finale; site-wide scroll reveals, card batch entrances, 3D card tilt, custom cursor, brand curtain.
+Verified in headless Chrome against a production build: no console errors; the pinned scenes, reel and hero were inspected at 1440px and the hero at 390px (EN + AR); no horizontal overflow from 320 to 1920px.
+Not re-inspected after the latest changes: the reel, crepe and burger scenes at phone widths, and dark mode with the new effects.
+
 ## Validation actually performed
 - `next build` (Next 16.4.3, Cache Components): passes, 63 static/PPR pages.
 - `eslint .`: 0 problems. `tsc --noEmit`: 0 errors.

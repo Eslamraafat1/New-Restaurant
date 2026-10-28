@@ -22,8 +22,8 @@ export function CartLines({ lines, onNavigate, compact }: { lines: CartLine[]; o
         const bits = describeConfig(product, line.config, l);
         return (
           <li key={line.key} className="flex gap-3 py-4">
-            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-bg2">
-              <ProductArt product={product} config={line.config} sizes="80px" className="h-full w-full" />
+            <div className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl bg-bg2 p-1.5">
+              <ProductArt product={product} config={line.config} className="h-full w-full" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-2">

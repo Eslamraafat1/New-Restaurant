@@ -71,9 +71,9 @@ export function ProductCard({ product, variant = "grid", onQuick }: CardProps) {
 
   if (variant === "list") {
     return (
-      <article className="card flex items-center gap-3 p-3 sm:gap-5 sm:p-4">
-        <Link href={href} className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-bg2 sm:h-28 sm:w-28" aria-hidden tabIndex={-1}>
-          <ProductArt product={product} sizes="112px" className="h-full w-full" />
+      <article data-card className="card flex items-center gap-3 p-3 sm:gap-5 sm:p-4">
+        <Link href={href} className="grid h-24 w-24 shrink-0 place-items-center rounded-2xl bg-bg2 p-2 sm:h-28 sm:w-28" aria-hidden tabIndex={-1}>
+          <ProductArt product={product} className="h-full w-full" />
         </Link>
         <div className="min-w-0 flex-1">
           <div className="mb-1 flex flex-wrap gap-1.5">{product.badges.slice(0, 2).map((b) => <Badge key={b} kind={b} />)}</div>
@@ -91,7 +91,7 @@ export function ProductCard({ product, variant = "grid", onQuick }: CardProps) {
 
   const big = variant === "feature";
   return (
-    <motion.article layout className={`group card relative flex h-full flex-col overflow-hidden ${big ? "bg-gradient-to-br from-surface to-surface2" : ""}`}>
+    <motion.article data-card data-tilt className={`group card relative flex h-full flex-col overflow-hidden ${big ? "bg-gradient-to-br from-surface to-surface2" : ""}`}>
       <div className="absolute end-3 top-3 z-10 flex flex-col gap-2">
         <WishButton id={product.id} />
         {onQuick && (
@@ -100,12 +100,11 @@ export function ProductCard({ product, variant = "grid", onQuick }: CardProps) {
           </button>
         )}
       </div>
-      <Link href={href} className={`relative block overflow-hidden bg-bg2 ${big ? "aspect-[5/4]" : "aspect-[4/3.4]"}`} aria-label={l(product.name)}>
+      <Link href={href} className={`relative grid place-items-center overflow-hidden bg-bg2 ${big ? "aspect-[5/4]" : "aspect-square"}`} aria-label={l(product.name)}>
         <div className="absolute start-3 top-3 z-10 flex flex-wrap gap-1.5">{product.badges.slice(0, 2).map((b) => <Badge key={b} kind={b} />)}</div>
-        <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-110">
-          <ProductArt product={product} sizes={big ? "(max-width: 1024px) 90vw, 50vw" : "(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 25vw"} className="h-full w-full" />
+        <div className="h-[84%] w-[84%] transition-transform duration-500 ease-out group-hover:scale-110 group-hover:rotate-[4deg]">
+          <ProductArt product={product} className="h-full w-full drop-shadow-xl" />
         </div>
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
       </Link>
       <div className="flex flex-1 flex-col gap-2 p-4">
         <h3 className={`display leading-tight ${big ? "text-3xl" : "text-xl sm:text-2xl"}`}><Link href={href}>{l(product.name)}</Link></h3>
