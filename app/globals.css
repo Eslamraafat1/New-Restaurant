@@ -1,26 +1,240 @@
 @import "tailwindcss";
 
+/* ───────── Design tokens (edit here to rebrand) ───────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #fbf4e4;
+  --bg-2: #f3e7cc;
+  --surface: #fffaf0;
+  --surface-2: #fff3da;
+  --ink: #231815;
+  --ink-soft: #5c4a40;
+  --line: rgb(35 24 21 / 0.14);
+  --tomato: #d63a22;
+  --tomato-deep: #a8260f;
+  --tomato-text: #c22d16;
+  --basil: #3d7a2a;
+  --basil-text: #2f6420;
+  --gold: #e8a92c;
+  --cheese: #f6d77a;
+  --charcoal: #1b1411;
+  --on-dark: #f6ead4;
+  --shadow: 0 18px 40px -18px rgb(60 25 10 / 0.35);
+  --grain-opacity: 0.07;
+  --scene-pizza: #f7e3b8;
+  --scene-crepe: #f2d9c2;
+  --scene-burger: #f5cf8f;
+  --scene-sweet: #f0cdb6;
+  --scene-drinks: #cfeef0;
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html[data-theme="dark"] {
+  --bg: #14100e;
+  --bg-2: #1d1714;
+  --surface: #241c18;
+  --surface-2: #2d231e;
+  --ink: #f6ead4;
+  --ink-soft: #bfae98;
+  --line: rgb(246 234 212 / 0.15);
+  --tomato: #d63a22;
+  --tomato-text: #ff7a5c;
+  --basil: #4f9a37;
+  --basil-text: #8ccc6c;
+  --gold: #f1b73d;
+  --shadow: 0 18px 40px -18px rgb(0 0 0 / 0.7);
+  --grain-opacity: 0.1;
+  --scene-pizza: #2a1d14;
+  --scene-crepe: #2c1f18;
+  --scene-burger: #2d2012;
+  --scene-sweet: #2b1c17;
+  --scene-drinks: #10282b;
+  color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  html:not([data-theme]) {
+    --bg: #14100e;
+    --bg-2: #1d1714;
+    --surface: #241c18;
+    --surface-2: #2d231e;
+    --ink: #f6ead4;
+    --ink-soft: #bfae98;
+    --line: rgb(246 234 212 / 0.15);
+    --tomato-text: #ff7a5c;
+    --basil: #4f9a37;
+    --basil-text: #8ccc6c;
+    --gold: #f1b73d;
+    --shadow: 0 18px 40px -18px rgb(0 0 0 / 0.7);
+    --grain-opacity: 0.1;
+    --scene-pizza: #2a1d14;
+    --scene-crepe: #2c1f18;
+    --scene-burger: #2d2012;
+    --scene-sweet: #2b1c17;
+    --scene-drinks: #10282b;
+    color-scheme: dark;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg2: var(--bg-2);
+  --color-surface: var(--surface);
+  --color-surface2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --color-tomato: var(--tomato);
+  --color-tomatotext: var(--tomato-text);
+  --color-basil: var(--basil);
+  --color-basiltext: var(--basil-text);
+  --color-gold: var(--gold);
+  --color-cheese: var(--cheese);
+  --font-display: var(--font-display), var(--font-ar), serif;
+  --font-sans: var(--font-body), var(--font-ar), system-ui, sans-serif;
 }
+
+/* ───────── Base ───────── */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5.5rem;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body), var(--font-ar), system-ui, sans-serif;
+  overflow-x: clip;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+html[dir="rtl"] body {
+  font-family: var(--font-ar), var(--font-body), system-ui, sans-serif;
+}
+html[dir="rtl"] .font-display,
+html[dir="rtl"] .display {
+  font-family: var(--font-ar), serif;
+  letter-spacing: 0;
+}
+img, svg { max-width: 100%; }
+:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+::selection { background: var(--tomato); color: #fff; }
+
+.display {
+  font-family: var(--font-display), serif;
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.025em;
+}
+.kicker {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tomato-text);
+}
+html[dir="rtl"] .kicker { letter-spacing: 0.02em; font-size: 0.9rem; }
+.wrap {
+  width: min(100% - 2rem, 80rem);
+  margin-inline: auto;
+}
+.section { padding-block: clamp(4rem, 9vw, 8rem); position: relative; }
+
+/* buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: 2.9rem; padding: 0.7rem 1.4rem; border-radius: 999px;
+  font-weight: 800; font-size: 0.95rem; line-height: 1; cursor: pointer;
+  border: 2px solid transparent; transition: transform 0.2s ease, background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  text-decoration: none; white-space: nowrap;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--tomato); color: #fff; box-shadow: 0 10px 24px -10px var(--tomato); }
+.btn-primary:hover { background: var(--tomato-deep); }
+.btn-ghost { border-color: var(--ink); color: var(--ink); background: transparent; }
+.btn-ghost:hover { background: var(--ink); color: var(--bg); }
+.btn-dark { background: var(--charcoal); color: var(--on-dark); }
+.btn-dark:hover { background: #000; }
+.btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+.icon-btn {
+  display: inline-grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 999px;
+  border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; position: relative;
+  transition: background-color 0.2s, transform 0.2s;
+}
+.icon-btn:hover { background: var(--bg-2); }
+.icon-btn:active { transform: scale(0.94); }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.85rem; min-height: 2.25rem;
+  border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink);
+  font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.18s;
+}
+.chip:hover { border-color: var(--ink); }
+.chip[aria-pressed="true"], .chip[aria-checked="true"], .chip[data-on="true"] {
+  background: var(--ink); color: var(--bg); border-color: var(--ink);
+}
+.field {
+  width: 100%; min-height: 2.9rem; padding: 0.7rem 1rem; border-radius: 0.9rem;
+  border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit;
+}
+.field:focus { border-color: var(--tomato); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--tomato) 30%, transparent); }
+.field[aria-invalid="true"] { border-color: var(--tomato); }
+.card { background: var(--surface); border: 1.5px solid var(--line); border-radius: 1.5rem; }
+
+/* grain – used sparingly on hero & finale */
+.grain::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: var(--grain-opacity); mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+html[data-theme="dark"] .grain::after { mix-blend-mode: screen; }
+
+/* safe areas */
+.safe-b { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
+
+/* skeleton */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-2), var(--surface-2), var(--bg-2));
+  background-size: 200% 100%; animation: shimmer 1.4s linear infinite; border-radius: 1rem;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* decorative */
+@keyframes floaty { 0%,100% { transform: translateY(0) rotate(var(--r, 0deg)); } 50% { transform: translateY(-12px) rotate(calc(var(--r, 0deg) + 4deg)); } }
+.floaty { animation: floaty var(--d, 6s) ease-in-out infinite; }
+@keyframes bubble { 0% { transform: translateY(0) scale(0.6); opacity: 0; } 20% { opacity: 0.8; } 100% { transform: translateY(-260px) scale(1.1); opacity: 0; } }
+.bubble { position: absolute; bottom: 0; border-radius: 50%; border: 2px solid rgb(255 255 255 / 0.7); background: rgb(255 255 255 / 0.25); animation: bubble var(--d, 5s) ease-in infinite; }
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+@keyframes marquee { to { transform: translateX(-50%); } }
+html[dir="rtl"] .marquee-track { animation-direction: reverse; }
+.marquee-track { display: flex; width: max-content; animation: marquee 30s linear infinite; }
+@keyframes check-draw { to { stroke-dashoffset: 0; } }
+
+/* GSAP-split text: keep layout stable before JS runs */
+.split-line { overflow: hidden; vertical-align: top; padding-bottom: 0.08em; }
+.split-line > span { display: inline-block; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important; animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .floaty, .bubble, .marquee-track { animation: none !important; }
+}
+
+/* hero reveal: hidden only while JS is about to animate it; a CSS fallback guarantees it shows even if JS fails */
+html.js [data-hero] { visibility: hidden; animation: unhide 0s 2.5s forwards; }
+@keyframes unhide { to { visibility: visible; } }
+@media (prefers-reduced-motion: reduce) { html.js [data-hero] { visibility: visible; animation: none; } }
+
+/* Lenis */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* pinned scenes: captions stack only when the scene is animated; otherwise they render as a plain list */
+.scene .steps { display: grid; gap: 0.5rem; }
+.scene[data-motion="on"] .steps { display: block; position: relative; min-height: 4.5rem; }
+.scene[data-motion="on"] .steps > li { position: absolute; inset-inline: 0; top: 0; opacity: 0; }
