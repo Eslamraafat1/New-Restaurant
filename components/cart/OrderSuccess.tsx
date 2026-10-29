@@ -42,7 +42,7 @@ export function OrderSuccess() {
             initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.3, duration: 0.55, ease: "easeOut" }} />
         </motion.svg>
       </div>
-      <h1 className="display mt-6 text-center text-5xl sm:text-7xl">{t("ok.title")}</h1>
+      <h1 className="display mt-6 text-center text-5xl sm:text-7xl">{order.demo ? t("ok.title") : t("ok.titleLive")}</h1>
       <p role="status" className="mx-auto mt-3 max-w-lg text-center text-soft">{order.demo ? t("ok.sub") : ""}</p>
       <p className="mt-6 text-center text-sm font-bold uppercase tracking-widest text-soft">{t("ok.id")}</p>
       <p dir="ltr" className="text-center font-mono text-2xl font-extrabold">{order.id}</p>
@@ -64,7 +64,7 @@ export function OrderSuccess() {
 
       <section className="mt-8" aria-labelledby="nx-h">
         <h2 id="nx-h" className="display text-2xl">{t("ok.next")}</h2>
-        <ol className="mt-3 list-decimal space-y-2 ps-5 text-soft"><li>{t("ok.n1")}</li><li>{t("ok.n2")}</li><li>{t("ok.n3")}</li></ol>
+        <ol className="mt-3 list-decimal space-y-2 ps-5 text-soft">{order.demo ? <><li>{t("ok.n1")}</li><li>{t("ok.n2")}</li><li>{t("ok.n3")}</li></> : <><li>{t("ok.l1")}</li><li>{t("ok.l2")}</li></>}</ol>
       </section>
       <div className="mt-8 text-center"><Link href="/menu" className="btn btn-primary">{t("ok.again")}</Link></div>
     </div>

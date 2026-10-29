@@ -10,7 +10,6 @@ import { ProductArt } from "@/components/art/ProductArt";
 import { Breadcrumbs } from "@/components/chrome/PageHeader";
 import { Badge, QtyStepper, Rating } from "@/components/chrome/ui";
 import { ProductCard, WishButton } from "@/components/menu/ProductCard";
-import { categories } from "@/data/demo/categories";
 import { addToCart, cartStore, drawer, replaceLine } from "@/lib/cart";
 import { useCatalog } from "@/lib/catalog";
 import { useI18n } from "@/lib/i18n";
@@ -140,7 +139,7 @@ function ProductBody({ product, editKey }: { product: Product; editKey: string |
   const { t, l, money, num } = useI18n();
   const router = useRouter();
   const lines = cartStore.use();
-  const { products } = useCatalog();
+  const { products, categoryOf } = useCatalog();
   const editing = editKey ? lines.find((x) => x.key === editKey) : undefined;
   const [config, setConfig] = useState<Config>(() => editing?.config ?? product.defaults);
   const [qty, setQty] = useState(editing?.qty ?? 1);
@@ -150,7 +149,7 @@ function ProductBody({ product, editKey }: { product: Product; editKey: string |
   const price = unitPrice(product, config);
   const total = price * qty;
   const errors = validateConfig(product, config);
-  const category = categories.find((c) => c.id === product.category)!;
+  const category = categoryOf(product.category);
   const related = useMemo(() => products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4), [products, product]);
 
   const summary = product.options.flatMap((g) =>
@@ -189,7 +188,7 @@ function ProductBody({ product, editKey }: { product: Product; editKey: string |
   return (
     <article>
       <div className="wrap pt-6">
-        <Breadcrumbs items={[{ key: "nav.menu", href: "/menu" }, { label: l(category.name), href: `/menu/${category.slug}` }, { label: l(product.name) }]} />
+        <Breadcrumbs items={[{ key: "nav.menu", href: "/menu" }, ...(category ? [{ label: l(category.name), href: `/menu/${category.slug}` }] : []), { label: l(product.name) }]} />
         {editing && <p role="status" className="mt-3 inline-block rounded-full bg-gold px-4 py-1.5 text-sm font-extrabold text-[#2a1a08]">{t("p.editing")}</p>}
       </div>
 

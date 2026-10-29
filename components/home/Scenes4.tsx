@@ -10,7 +10,7 @@ import { ProductArt } from "@/components/art/ProductArt";
 import { Faq } from "@/components/chrome/Accordion";
 import { SampleTag } from "@/components/chrome/ui";
 import { useQuickAdd } from "@/components/menu/ProductCard";
-import { branches, offers, reviews } from "@/data/demo/content";
+import { reviews } from "@/data/demo/content";
 import { useCatalog } from "@/lib/catalog";
 import { getGsap, reducedMotion, syncLenis } from "@/lib/gsap";
 import { useI18n } from "@/lib/i18n";
@@ -225,6 +225,7 @@ export function Favorites() {
 /* ───────────── Scene 16/17/18 ───────────── */
 export function LocationsSection() {
   const { t, l } = useI18n();
+  const { branches } = useCatalog();
   return (
     <section id="locations" aria-labelledby="loc-h" className="section" style={{ background: "var(--bg-2)" }}>
       <div className="wrap">
@@ -248,6 +249,7 @@ export function LocationsSection() {
 
 export function OffersSection() {
   const { t, l, locale } = useI18n();
+  const { offers } = useCatalog();
   return (
     <section id="offers" aria-labelledby="off-h" className="section">
       <div className="wrap">

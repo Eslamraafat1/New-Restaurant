@@ -1,5 +1,11 @@
 # Implementation status
 
+## Hand-off status (backend-ready)
+- Read `README.md` then `docs/BACKEND_INTEGRATION.md`. All catalogue, offers and branches data flow through `lib/api/*` (demo or real, one env switch).
+- Verified in a production build in **demo mode**: all 20 pages return 200; add customised pizza (price 165 = 140 + ranch 10 + extra pepperoni 15) → cart → checkout validation → order accepted → cart cleared → success screen; no console errors.
+- Verified in **live mode** (`NEXT_PUBLIC_USE_DEMO_API=false`, the demo route handlers acting as the backend): `/menu` fetched categories/products/offers/branches (28 products), add-to-cart and checkout render; demo wording (banner, button, success text) is hidden. A live-mode prerender crash on `/admin` was found and fixed.
+- Remaining backend work: real `POST /orders` (+ server-side price recomputation), payments, auth/admin, order persistence, real branches/contacts/legal text.
+
 ## Update – illustrated art restored + GSAP creative layer
 The stock-photo experiment was reverted by request; the layered SVG illustration art is back (palette, Arabic typography, responsive and hydration fixes kept).
 New GSAP/creative work: letter-flip hero with toppings flying in + 3D pointer tilt + scroll-out; pizza assembly with sauce splash, cheese rain, cut lines, ingredient callouts, steam;

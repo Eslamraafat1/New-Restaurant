@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { categories } from "@/data/demo/categories";
+import { useCatalog } from "@/lib/catalog";
 import { brand } from "@/lib/brand";
 import { useI18n } from "@/lib/i18n";
 import { Logo } from "./Logo";
 
 export function Footer() {
   const { t, l } = useI18n();
+  const { categories } = useCatalog();
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
   const [bad, setBad] = useState(false);

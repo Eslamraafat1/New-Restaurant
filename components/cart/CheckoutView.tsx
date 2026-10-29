@@ -5,8 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { CartLines } from "@/components/chrome/CartLines";
-import { branches } from "@/data/demo/content";
+import { apiConfig } from "@/lib/api/config";
 import { submitOrder } from "@/lib/api/orders";
+import { useCatalog } from "@/lib/catalog";
 import { cartStore, clearCart, couponStore, lastOrderStore } from "@/lib/cart";
 import { useI18n } from "@/lib/i18n";
 import { calcTotals } from "@/lib/pricing";
@@ -18,6 +19,7 @@ type Errors = Partial<Record<"name" | "phone" | "email" | "address" | "branch", 
 
 export function CheckoutView() {
   const { t, l } = useI18n();
+  const { branches } = useCatalog();
   const router = useRouter();
   const lines = cartStore.use();
   const coupon = couponStore.use();
@@ -79,9 +81,11 @@ export function CheckoutView() {
   return (
     <div className="wrap py-10">
       <h1 className="display text-5xl sm:text-7xl">{t("co.title")}</h1>
-      <p role="note" className="mt-4 flex items-start gap-2 rounded-2xl border-2 border-gold bg-gold/15 p-4 text-sm font-bold">
-        <ShieldAlert size={20} className="mt-0.5 shrink-0" aria-hidden />{t("co.demoBanner")}
-      </p>
+      {apiConfig.useDemo && (
+        <p role="note" className="mt-4 flex items-start gap-2 rounded-2xl border-2 border-gold bg-gold/15 p-4 text-sm font-bold">
+          <ShieldAlert size={20} className="mt-0.5 shrink-0" aria-hidden />{t("co.demoBanner")}
+        </p>
+      )}
       <form ref={formRef} onSubmit={onSubmit} noValidate className="mt-8 grid gap-8 lg:grid-cols-[1fr_24rem]">
         <div className="space-y-8">
           <fieldset className="card space-y-4 p-5">
@@ -136,7 +140,7 @@ export function CheckoutView() {
           <TotalsBox totals={totals} delivery={fulfilment === "delivery"} />
           {failed && <p role="alert" className="rounded-xl bg-tomato/10 p-3 text-sm font-bold text-tomatotext">{t("co.error")}</p>}
           <button className="btn btn-primary w-full" disabled={busy}>
-            {busy && <Loader2 size={18} className="animate-spin" aria-hidden />}{busy ? t("co.placing") : t("co.place")}
+            {busy && <Loader2 size={18} className="animate-spin" aria-hidden />}{busy ? t("co.placing") : apiConfig.useDemo ? t("co.place") : t("co.placeLive")}
           </button>
         </aside>
       </form>

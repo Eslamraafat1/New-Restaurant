@@ -6,9 +6,8 @@ import { useState } from "react";
 import { Faq } from "@/components/chrome/Accordion";
 import { PageHeader } from "@/components/chrome/PageHeader";
 import { SampleTag } from "@/components/chrome/ui";
-import { categories } from "@/data/demo/categories";
-import { branches, ingredients, offers } from "@/data/demo/content";
-import { products } from "@/data/demo/products";
+import { ingredients } from "@/data/demo/content";
+import { useCatalog } from "@/lib/catalog";
 import { submitContact } from "@/lib/api/orders";
 import { brand } from "@/lib/brand";
 import { lastOrderStore } from "@/lib/cart";
@@ -17,6 +16,7 @@ import { toast } from "@/lib/toast";
 
 export function OffersPage() {
   const { t, l, locale } = useI18n();
+  const { offers } = useCatalog();
   return (
     <>
       <PageHeader kickerKey="offers.kicker" titleKey="offers.title" crumbs={[{ key: "nav.offers" }]} />
@@ -41,6 +41,7 @@ export function OffersPage() {
 
 export function AboutPage() {
   const { t } = useI18n();
+  const { products, categories } = useCatalog();
   return (
     <>
       <PageHeader kickerKey="nav.about" titleKey="about.title" crumbs={[{ key: "nav.about" }]} />
@@ -133,6 +134,7 @@ export function ContactPage() {
 
 export function LocationsPage() {
   const { t, l } = useI18n();
+  const { branches } = useCatalog();
   return (
     <>
       <PageHeader kickerKey="loc.kicker" titleKey="loc.title" subKey="loc.note" crumbs={[{ key: "nav.locations" }]} />
@@ -216,6 +218,7 @@ function AdminTable({ title, head, rows }: { title: string; head: string[]; rows
 
 export function AdminPage() {
   const { t, l, money } = useI18n();
+  const { products, categories, offers } = useCatalog();
   const order = lastOrderStore.use();
   return (
     <>
@@ -225,7 +228,7 @@ export function AdminPage() {
         <AdminTable title={t("admin.products")} head={["ID", "Name", "Category", "Base"]} rows={products.map((p) => [p.id, l(p.name), p.category, money(p.basePrice)])} />
         <AdminTable title={t("admin.categories")} head={["ID", "Name", "Order"]} rows={categories.map((c) => [c.id, l(c.name), c.order])} />
         <AdminTable title={t("admin.ingredients")} head={["ID", "Name"]} rows={ingredients.map((i) => [i.id, l(i.name)])} />
-        <AdminTable title={t("admin.options")} head={["Group", "Kind", "Choices"]} rows={products.find((p) => p.id === "margherita")!.options.map((g) => [g.id, g.kind, g.choices.map((c) => c.id).join(", ")])} />
+        <AdminTable title={t("admin.options")} head={["Group", "Kind", "Choices"]} rows={(products.find((p) => p.options.length > 0)?.options ?? []).map((g) => [g.id, g.kind, g.choices.map((c) => c.id).join(", ")])} />
         <AdminTable title={t("admin.offers")} head={["ID", "Title", "Code"]} rows={offers.map((o) => [o.id, l(o.title), o.code ?? "—"])} />
         <AdminTable title={t("admin.orders")} head={["ID", "Total"]} rows={order ? [[order.id, money(order.totals.total)]] : []} />
         {!order && <p className="text-sm text-soft">{t("admin.noOrders")}</p>}

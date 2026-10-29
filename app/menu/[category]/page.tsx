@@ -3,21 +3,34 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { CategoryHead } from "@/components/menu/CategoryHead";
 import { MenuView } from "@/components/menu/MenuView";
-import { categories, categoryBySlug } from "@/data/demo/categories";
+import { categories } from "@/data/demo/categories";
+import { getCategories } from "@/lib/api/categories";
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  try {
+    const list = await getCategories();
+    if (list.length) return list.map((c) => ({ category: c.slug }));
+  } catch { /* backend unreachable at build time */ }
   return categories.map((c) => ({ category: c.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/menu/[category]">): Promise<Metadata> {
   const { category } = await params;
-  const c = categoryBySlug(category);
+  const c = await findCategory(category);
   return { title: c ? c.name.en : "Menu" };
+}
+
+async function findCategory(slug: string) {
+  try {
+    return (await getCategories()).find((c) => c.slug === slug);
+  } catch {
+    return undefined;
+  }
 }
 
 async function CategoryContent({ params }: { params: PageProps<"/menu/[category]">["params"] }) {
   const { category } = await params;
-  const c = categoryBySlug(category);
+  const c = await findCategory(category);
   if (!c) notFound();
   return (
     <>

@@ -3,10 +3,15 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductExperience } from "@/components/product/ProductExperience";
 import { products } from "@/data/demo/products";
-import { getProduct } from "@/lib/api/products";
+import { getProduct, getProducts } from "@/lib/api/products";
 import type { Product } from "@/lib/api/types";
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  // pre-render whatever the configured API (demo or real) lists; fall back to demo data so the build never fails offline
+  try {
+    const list = await getProducts();
+    if (list.length) return list.map((p) => ({ slug: p.slug }));
+  } catch { /* backend unreachable at build time */ }
   return products.map((p) => ({ slug: p.slug }));
 }
 
