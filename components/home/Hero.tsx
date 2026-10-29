@@ -92,7 +92,7 @@ export function Hero() {
   return (
     <section ref={root} className="grain relative isolate overflow-hidden" aria-labelledby="hero-h"
       style={{ background: "radial-gradient(90% 70% at 85% 25%, color-mix(in srgb, var(--gold) 55%, transparent), transparent 60%), radial-gradient(70% 60% at 0% 100%, color-mix(in srgb, var(--tomato) 30%, transparent), transparent 60%), var(--bg)" }}>
-      <p aria-hidden data-hero="word" className="display outline-text pointer-events-none absolute -bottom-[0.15em] start-0 -z-10 w-[130%] select-none whitespace-nowrap text-[clamp(7rem,30vw,28rem)] leading-none opacity-[0.13]">
+      <p aria-hidden data-hero="word" className="display outline-text pointer-events-none absolute will-change-transform -bottom-[0.15em] start-0 -z-10 w-[130%] select-none whitespace-nowrap text-[clamp(7rem,30vw,28rem)] leading-none opacity-[0.13]">
         CRAVE · CRAVE
       </p>
       <div className="wrap grid min-h-[calc(100svh-4.25rem)] items-center gap-4 pb-24 pt-4 lg:grid-cols-[1.05fr_1fr] lg:pb-28">
@@ -117,9 +117,10 @@ export function Hero() {
             <div data-hero="tilt" className="h-full w-full">
               <div data-hero="spin" className="h-full w-full">
                 <div data-hero="pizza" className="relative h-full w-full">
-                  <div className="absolute inset-[3%] rounded-full bg-tomato/25 blur-3xl" />
+                  <div className="absolute inset-[-6%] rounded-full" style={{ background: "radial-gradient(circle, color-mix(in srgb, var(--tomato) 30%, transparent) 0, transparent 62%)" }} />
+                  <div className="absolute inset-[7%] rounded-full" style={{ boxShadow: "0 44px 60px -14px rgba(70,20,0,.5)" }} />
                   <div className="relative h-full w-full" style={{ animation: "spin-slow 90s linear infinite" }}>
-                    <PizzaSVG layers={HERO_LAYERS} mode="plain" className="h-full w-full drop-shadow-[0_40px_40px_rgba(70,20,0,.4)]" />
+                    <PizzaSVG layers={HERO_LAYERS} mode="plain" className="h-full w-full" />
                   </div>
                   <span className="steam" style={{ left: "38%", top: "6%" }} />
                   <span className="steam" style={{ left: "54%", top: "2%", animationDelay: "1.3s" }} />

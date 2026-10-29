@@ -187,12 +187,11 @@ html[dir="rtl"] .kicker { letter-spacing: 0.02em; font-size: 0.9rem; }
 
 }
 
-/* grain – used sparingly on hero & finale */
+/* grain – a pre-rendered tile (a live SVG feTurbulence + blend mode re-rasterised every frame and tanked FPS) */
 .grain::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: var(--grain-opacity); mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: calc(var(--grain-opacity) * 0.8);
+  background-image: url("/noise.png"); background-size: 128px 128px;
 }
-html[data-theme="dark"] .grain::after { mix-blend-mode: screen; }
 
 /* safe areas */
 .safe-b { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }

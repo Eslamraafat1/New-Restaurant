@@ -6,7 +6,8 @@ New GSAP/creative work: letter-flip hero with toppings flying in + 3D pointer ti
 crepe heat-glow/shake/powdered sugar; burger shockwave rings + camera shake + sesame burst; pinned horizontal signature reel with 3D cards;
 velocity-driven skewing marquee; falling-ingredients finale; site-wide scroll reveals, card batch entrances, 3D card tilt, custom cursor, brand curtain.
 Verified in headless Chrome against a production build: no console errors; the pinned scenes, reel and hero were inspected at 1440px and the hero at 390px (EN + AR); no horizontal overflow from 320 to 1920px.
-Not re-inspected after the latest changes: the reel, crepe and burger scenes at phone widths, and dark mode with the new effects.
+Also inspected at 390px: reel (native carousel), crepe, burger and assembly scenes; dark mode hero/menu/product/assembly; reduced-motion hero (static final state).
+Performance fix: the full-section SVG feTurbulence grain overlay dropped headless-Chrome FPS to ~1; replaced by a pre-rendered noise tile (60 FPS in the same test). The outlined hero word is promoted to its own layer.
 
 ## Validation actually performed
 - `next build` (Next 16.4.3, Cache Components): passes, 63 static/PPR pages.

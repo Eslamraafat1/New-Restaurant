@@ -80,9 +80,9 @@ export function SignatureReel() {
 
   return (
     <section ref={root} id="signature" aria-labelledby="sig-h" className="reel relative overflow-hidden bg-[#120c09] py-16 text-[#f6ead4] md:py-0">
-      <p aria-hidden data-reelword className="display outline-text pointer-events-none absolute start-0 top-[8%] whitespace-nowrap text-[clamp(8rem,22vw,20rem)] leading-none text-[#f6ead4] opacity-[0.07]">SIGNATURE · SIGNATURE · SIGNATURE</p>
+      <p aria-hidden data-reelword className="display outline-text pointer-events-none absolute will-change-transform start-0 top-[8%] whitespace-nowrap text-[clamp(8rem,22vw,20rem)] leading-none text-[#f6ead4] opacity-[0.07]">SIGNATURE · SIGNATURE · SIGNATURE</p>
       <div className="relative flex min-h-svh flex-col justify-center gap-8 md:py-10">
-        <div className="wrap w-full">
+        <div className="wrap">
           <p className="kicker !text-[#ffb21e]" data-no-reveal>{t("sig.kicker")}</p>
           <h2 id="sig-h" data-no-reveal className="display mt-2 max-w-3xl text-[clamp(2.4rem,6vw,5rem)]"><Chars text={t("sig.title")} /></h2>
         </div>
@@ -91,7 +91,7 @@ export function SignatureReel() {
             {pizzas.map((p, i) => <ReelCard key={p.id} product={p} index={i} />)}
           </div>
         </div>
-        <div className="wrap flex w-full items-center gap-4">
+        <div className="wrap flex items-center gap-4">
           <span className="hidden text-sm font-extrabold tabular-nums md:block"><span data-count>{num(1)}</span> / {num(pizzas.length)}</span>
           <div className="hidden h-1 flex-1 overflow-hidden rounded-full bg-white/15 md:block"><div data-bar className="h-full origin-[0_50%] bg-gold rtl:origin-[100%_50%]" style={{ transform: "scaleX(0)" }} /></div>
           <Link href="/menu/pizza" className="btn btn-primary ms-auto">{t("common.viewAll")}<ArrowRight size={16} className="rtl:rotate-180" aria-hidden /></Link>
