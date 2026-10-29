@@ -6,6 +6,8 @@ import type { Config } from "@/lib/api/types";
 
 /* ───────────────────────── CREPE ───────────────────────── */
 
+export type SavorySauce = "none" | "ranch" | "bbq" | "garlic" | "hot";
+
 export interface CrepeLayers {
   chocolate: "milk" | "dark" | "white" | "none";
   banana: boolean;
@@ -13,7 +15,10 @@ export interface CrepeLayers {
   nuts: boolean;
   biscuit: boolean;
   extra: boolean;
-  savory: { chicken: boolean; cheese: boolean; mushroom: boolean; spinach: boolean };
+  savory: {
+    chicken: boolean; cheese: boolean; mushroom: boolean; spinach: boolean; corn: boolean; olive: boolean; pepper: boolean;
+    xChicken: boolean; xCheese: boolean; sauce: SavorySauce;
+  };
   isSavory: boolean;
 }
 
@@ -21,6 +26,7 @@ export function crepeFromConfig(config: Config, savory: boolean): CrepeLayers {
   const f = config.fruit ?? [];
   const c = config.crunch ?? [];
   const s = config.fillings ?? [];
+  const x = config.extras ?? [];
   return {
     chocolate: savory ? "none" : ((config.chocolate?.[0] as CrepeLayers["chocolate"]) ?? "milk"),
     banana: f.includes("banana"),
@@ -29,13 +35,18 @@ export function crepeFromConfig(config: Config, savory: boolean): CrepeLayers {
     biscuit: c.includes("biscuit"),
     extra: (config.filling ?? []).includes("extra"),
     isSavory: savory,
-    savory: { chicken: s.includes("chicken"), cheese: s.includes("cheese"), mushroom: s.includes("mushroom"), spinach: s.includes("spinach") },
+    savory: {
+      chicken: s.includes("chicken"), cheese: s.includes("cheese"), mushroom: s.includes("mushroom"), spinach: s.includes("spinach"),
+      corn: s.includes("corn"), olive: s.includes("olive"), pepper: s.includes("pepper"),
+      xChicken: x.includes("x-chicken"), xCheese: x.includes("x-cheese"),
+      sauce: (config.sauce?.[0] as SavorySauce) ?? "none",
+    },
   };
 }
 
 export const CREPE_FULL: CrepeLayers = {
   chocolate: "milk", banana: true, strawberry: true, nuts: true, biscuit: false, extra: false, isSavory: false,
-  savory: { chicken: false, cheese: false, mushroom: false, spinach: false },
+  savory: { chicken: false, cheese: false, mushroom: false, spinach: false, corn: false, olive: false, pepper: false, xChicken: false, xCheese: false, sauce: "none" },
 };
 
 const CHOC: Record<string, string> = { milk: "#5a2c16", dark: "#2c130a", white: "#fff4de" };
@@ -44,11 +55,19 @@ const BANANA = [[130, 120], [215, 105], [285, 150], [95, 205], [165, 175], [250,
 const STRAW = [[300, 235], [112, 150], [190, 245], [270, 100]];
 const NUTS = Array.from({ length: 26 }, (_, i) => { const r = 128 * Math.sqrt((i + 0.5) / 26); const a = i * 2.4; return [200 + r * Math.cos(a), 200 + r * Math.sin(a), (i * 47) % 180]; });
 const CRUMBS = Array.from({ length: 22 }, (_, i) => { const r = 135 * Math.sqrt((i + 0.5) / 22); const a = i * 2.9 + 1; return [200 + r * Math.cos(a), 200 + r * Math.sin(a), (i * 31) % 90]; });
+const spiral = (n: number, reach: number, off: number, rot: number) =>
+  Array.from({ length: n }, (_, i) => { const r = reach * Math.sqrt((i + 0.5) / n); const a = i * 2.4 + off; return [200 + r * Math.cos(a), 200 + r * Math.sin(a), (i * rot) % 180]; });
 const SAV = {
   chicken: Array.from({ length: 10 }, (_, i) => [200 + 95 * Math.cos(i * 1.9), 200 + 95 * Math.sin(i * 1.9) * (0.6 + (i % 3) * 0.2), (i * 40) % 90]),
+  chicken2: spiral(9, 118, 0.9, 43),
   mushroom: Array.from({ length: 8 }, (_, i) => [200 + 110 * Math.cos(i * 2.3 + 1), 200 + 90 * Math.sin(i * 2.3 + 1), (i * 33) % 90]),
   spinach: Array.from({ length: 7 }, (_, i) => [200 + 120 * Math.cos(i * 2.7 + 2), 200 + 100 * Math.sin(i * 2.7 + 2), (i * 51) % 180]),
+  corn: spiral(34, 138, 0.3, 17),
+  olive: spiral(9, 126, 1.7, 29),
+  pepper: spiral(7, 122, 2.6, 61),
 };
+const SAUCE_COLOR: Record<SavorySauce, string> = { none: "transparent", ranch: "#fffaf0", bbq: "#4f2412", garlic: "#f4e8c4", hot: "#d4351c" };
+const SAUCE_PATH = "M92 128 Q128 102 164 128 T236 128 T308 128 M96 192 Q132 166 168 192 T240 192 T312 192 M100 256 Q136 230 172 256 T244 256 T304 256";
 
 function Pop({ id, children, delay = 0, plain }: { id: string; children: ReactNode; delay?: number; plain?: boolean }) {
   if (plain) return <g className="pc" data-l={id}>{children}</g>;
@@ -92,20 +111,53 @@ export function CrepeSVG({ layers = CREPE_FULL, className, title, plain }: { lay
               initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.8, ease: "easeInOut" }} />
           </motion.g>
         )}
-        {layers.isSavory && layers.extra && (
-          <motion.circle key="sav-extra" cx="200" cy="200" r="120" fill="#f6dd96" opacity=".6" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} />
+        {layers.isSavory && (
+          <motion.circle key="sv-base" cx="200" cy="200" r="150" fill="#f7e7b4" opacity=".55" initial={{ opacity: 0 }} animate={{ opacity: 0.55 }} exit={{ opacity: 0 }} />
         )}
         {layers.isSavory && layers.savory.cheese && (
           <Pop key="sv-cheese" plain={plain} id="sv-cheese"><g data-l="cheese">{Array.from({ length: 14 }, (_, i) => <rect key={i} x={200 + 120 * Math.cos(i * 1.7) - 14} y={200 + 100 * Math.sin(i * 1.7) - 3} width="28" height="6" rx="3" fill="#f7d466" transform={`rotate(${i * 38} ${200 + 120 * Math.cos(i * 1.7)} ${200 + 100 * Math.sin(i * 1.7)})`} />)}</g></Pop>
         )}
+        {layers.isSavory && layers.savory.xCheese && (
+          <Pop key="sv-xcheese" plain={plain} id="sv-xcheese" delay={0.05}><g data-l="xcheese">
+            {spiral(8, 110, 0.5, 70).map(([x, y, r], i) => <ellipse key={i} cx={x} cy={y} rx="34" ry="22" transform={`rotate(${r} ${x} ${y})`} fill="#fbe38a" opacity=".78" />)}
+            {spiral(16, 130, 1.2, 50).map(([x, y, r], i) => <rect key={`s${i}`} x={x - 16} y={y - 3} width="32" height="6" rx="3" fill="#ffd54a" transform={`rotate(${r} ${x} ${y})`} />)}
+          </g></Pop>
+        )}
+        {layers.isSavory && layers.savory.corn && (
+          <Pop key="sv-corn" plain={plain} id="sv-corn" delay={0.04}><g data-l="corn">{SAV.corn.map(([x, y], i) => <g key={i}><circle cx={x} cy={y} r="5.6" fill="#f4c430" stroke="#c99a12" strokeWidth="1.2" /><circle cx={x - 1.6} cy={y - 1.6} r="1.6" fill="#fff3b0" /></g>)}</g></Pop>
+        )}
         {layers.isSavory && layers.savory.chicken && (
-          <Pop key="sv-chicken" plain={plain} id="sv-chicken"><g data-l="chicken">{SAV.chicken.map(([x, y, r], i) => <rect key={i} x={x - 14} y={y - 10} width="28" height="20" rx="8" fill="#e7c18a" stroke="#b98a4e" strokeWidth="2" transform={`rotate(${r} ${x} ${y})`} />)}</g></Pop>
+          <Pop key="sv-chicken" plain={plain} id="sv-chicken"><g data-l="chicken">{SAV.chicken.map(([x, y, r], i) => (
+            <g key={i} transform={`translate(${x} ${y}) rotate(${r})`}>
+              <rect x="-15" y="-11" width="30" height="22" rx="9" fill="#e9c38c" stroke="#a9773a" strokeWidth="2" />
+              <path d="M-9-5L9 3M-9 1L9 9" stroke="#8a5a24" strokeWidth="2" strokeLinecap="round" opacity=".55" />
+              <ellipse cx="-4" cy="-6" rx="5" ry="2" fill="#fff" opacity=".3" />
+            </g>
+          ))}</g></Pop>
+        )}
+        {layers.isSavory && layers.savory.xChicken && (
+          <Pop key="sv-xchicken" plain={plain} id="sv-xchicken" delay={0.06}><g data-l="xchicken">{SAV.chicken2.map(([x, y, r], i) => (
+            <g key={i} transform={`translate(${x} ${y}) rotate(${r})`}>
+              <rect x="-15" y="-11" width="30" height="22" rx="9" fill="#efca96" stroke="#a9773a" strokeWidth="2" />
+              <path d="M-9-5L9 3M-9 1L9 9" stroke="#8a5a24" strokeWidth="2" strokeLinecap="round" opacity=".55" />
+            </g>
+          ))}</g></Pop>
         )}
         {layers.isSavory && layers.savory.mushroom && (
           <Pop key="sv-mush" plain={plain} id="sv-mush"><g data-l="mushroom">{SAV.mushroom.map(([x, y, r], i) => <path key={i} d="M-14 4C-14-12 14-12 14 4L5 4L5 12L-5 12L-5 4Z" fill="#dfcba8" stroke="#8d7550" strokeWidth="2" transform={`translate(${x} ${y}) rotate(${r})`} />)}</g></Pop>
         )}
         {layers.isSavory && layers.savory.spinach && (
           <Pop key="sv-spin" plain={plain} id="sv-spin"><g data-l="spinach">{SAV.spinach.map(([x, y, r], i) => <path key={i} d="M0-15C12-8 12 8 0 15C-12 8-12-8 0-15Z" fill="#3d8a2b" transform={`translate(${x} ${y}) rotate(${r})`} />)}</g></Pop>
+        )}
+        {layers.isSavory && layers.savory.olive && (
+          <Pop key="sv-olive" plain={plain} id="sv-olive" delay={0.06}><g data-l="olive">{SAV.olive.map(([x, y], i) => <circle key={i} cx={x} cy={y} r="7" fill="none" stroke="#2a2331" strokeWidth="4.6" />)}</g></Pop>
+        )}
+        {layers.isSavory && layers.savory.pepper && (
+          <Pop key="sv-pepper" plain={plain} id="sv-pepper" delay={0.08}><g data-l="pepper">{SAV.pepper.map(([x, y, r], i) => <path key={i} d="M-14 4A14 14 0 0 1 14 4" fill="none" stroke="#4f9d2c" strokeWidth="6" strokeLinecap="round" transform={`translate(${x} ${y}) rotate(${r})`} />)}</g></Pop>
+        )}
+        {layers.isSavory && layers.savory.sauce !== "none" && (
+          <motion.path key={`sv-sauce-${layers.savory.sauce}`} data-l="sauce" d={SAUCE_PATH} fill="none" stroke={SAUCE_COLOR[layers.savory.sauce]} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round"
+            style={{ filter: "drop-shadow(0 1px 1px rgba(0,0,0,.4))" }} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.9, ease: "easeInOut" }} />
         )}
         {layers.banana && (
           <Pop key="banana" plain={plain} id="banana"><g data-l="banana">{BANANA.map(([x, y], i) => (

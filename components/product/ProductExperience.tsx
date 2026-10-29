@@ -19,7 +19,7 @@ import type { Config, OptionGroup, Product } from "@/lib/api/types";
 
 const SWATCH: Record<string, string> = {
   marinara: "#c93a20", ranch: "#fffaf0", bbq: "#5a2a16", pesto: "#6f9d3a",
-  milk: "#6b3a20", dark: "#2c130a", white: "#fff4de", none: "transparent",
+  milk: "#6b3a20", dark: "#2c130a", white: "#fff4de", none: "transparent", garlic: "#f4e8c4", hot: "#d4351c",
 };
 const TOPPING_ICON = new Set(["pepperoni", "mushroom", "olive", "pepper", "onion", "basil"]);
 

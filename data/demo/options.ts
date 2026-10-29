@@ -73,15 +73,25 @@ export const crepeSavoryOptions: OptionGroup[] = [
     { id: "regular", name: n("Regular", "عادي"), price: 0 },
     { id: "large", name: n("Large", "كبير"), price: 30 },
   ] },
-  { id: "fillings", kind: "multi", max: 4, name: n("Fillings", "الحشوات"), choices: [
-    { id: "chicken", name: n("Chicken", "دجاج"), price: 20 },
-    { id: "cheese", name: n("Cheese", "جبنة"), price: 12 },
+  { id: "fillings", kind: "multi", max: 5, name: n("Fillings", "الحشوات"), choices: [
+    { id: "chicken", name: n("Grilled chicken", "دجاج مشوي"), price: 20 },
+    { id: "cheese", name: n("Melted cheese", "جبنة ذائبة"), price: 12 },
     { id: "mushroom", name: n("Mushrooms", "مشروم"), price: 12 },
     { id: "spinach", name: n("Spinach", "سبانخ"), price: 8 },
+    { id: "corn", name: n("Sweet corn", "ذرة"), price: 8 },
+    { id: "olive", name: n("Black olives", "زيتون أسود"), price: 8 },
+    { id: "pepper", name: n("Green peppers", "فلفل أخضر"), price: 8 },
   ] },
-  { id: "filling", kind: "single", name: n("Filling", "الحشو"), choices: [
-    { id: "standard", name: n("Standard", "عادي"), price: 0 },
-    { id: "extra", name: n("Extra filling", "حشو إضافي"), price: 15 },
+  { id: "sauce", kind: "single", name: n("Sauce", "الصلصة"), choices: [
+    { id: "none", name: n("No sauce", "بدون صلصة"), price: 0 },
+    { id: "ranch", name: n("Ranch", "رانش"), price: 8 },
+    { id: "bbq", name: n("Smoky BBQ", "باربكيو"), price: 8 },
+    { id: "garlic", name: n("Garlic cream", "كريمة الثوم"), price: 8 },
+    { id: "hot", name: n("Hot chili", "صوص حار"), price: 6 },
+  ] },
+  { id: "extras", kind: "multi", max: 2, name: n("Double up", "ضاعف"), choices: [
+    { id: "x-chicken", name: n("Extra chicken", "دجاج إضافي"), price: 25 },
+    { id: "x-cheese", name: n("Extra cheese", "جبنة إضافية"), price: 12 },
   ] },
 ];
 
