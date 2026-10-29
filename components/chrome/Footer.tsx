@@ -68,7 +68,6 @@ export function Footer() {
           <ul className="flex gap-4">
             <li><Link href="/privacy" className="hover:underline">{t("footer.privacy")}</Link></li>
             <li><Link href="/terms" className="hover:underline">{t("footer.terms")}</Link></li>
-            <li><Link href="/admin" className="hover:underline">{t("admin.title")}</Link></li>
           </ul>
         </div>
       </div>

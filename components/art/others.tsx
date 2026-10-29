@@ -251,7 +251,7 @@ export function BurgerSVG({ layers = BURGER_FULL, className, title, plain }: { l
 
 export type DishKind = "pasta" | "appetizer" | "dessert" | "drink" | "combo";
 
-export function DishSVG({ kind, className, title }: { kind: DishKind; className?: string; title?: string }) {
+export function DishSVG({ kind, className, title, tone = "#f2b84a" }: { kind: DishKind; className?: string; title?: string; tone?: string }) {
   return (
     <svg viewBox="0 0 400 400" className={className} role="img" aria-label={title ?? kind}>
       {kind === "pasta" && (
@@ -288,7 +288,7 @@ export function DishSVG({ kind, className, title }: { kind: DishKind; className?
         <g>
           <ellipse cx="200" cy="360" rx="100" ry="16" fill="#000" opacity=".15" />
           <path d="M120 100H280L262 346Q260 360 244 360H156Q140 360 138 346Z" fill="#fff" fillOpacity=".35" stroke="#1f9bb0" strokeWidth="5" strokeLinejoin="round" />
-          <path d="M127 160H273L262 346Q260 360 244 360H156Q140 360 138 346Z" fill="#f2b84a" fillOpacity=".85" />
+          <path d="M127 160H273L262 346Q260 360 244 360H156Q140 360 138 346Z" fill={tone} fillOpacity=".85" />
           {[[170, 210], [215, 250], [190, 300], [235, 190]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="9" fill="#fff" fillOpacity=".55" />)}
           {[[160, 190], [230, 230], [200, 150]].map(([x, y], i) => <rect key={i} x={x - 16} y={y - 16} width="32" height="32" rx="6" fill="#fff" fillOpacity=".6" transform={`rotate(${i * 20} ${x} ${y})`} />)}
           <path d="M240 40L222 260" stroke="#d63a22" strokeWidth="12" strokeLinecap="round" />

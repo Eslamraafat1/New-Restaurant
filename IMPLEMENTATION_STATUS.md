@@ -6,6 +6,12 @@
 - Verified in **live mode** (`NEXT_PUBLIC_USE_DEMO_API=false`, the demo route handlers acting as the backend): `/menu` fetched categories/products/offers/branches (28 products), add-to-cart and checkout render; demo wording (banner, button, success text) is hidden. A live-mode prerender crash on `/admin` was found and fixed.
 - Remaining backend work: real `POST /orders` (+ server-side price recomputation), payments, auth/admin, order persistence, real branches/contacts/legal text.
 
+## Final QA (production build) – latest run
+- 190 automated checks on the final build (19 pages x 5 widths x EN/AR): 0 horizontal scrolls, 0 unclipped overflow, 0 console errors.
+- Visually reviewed in Arabic and English: mobile (390), tablet (768) and desktop pages incl. about/faq/contact/locations/offers/ingredients/privacy/cart/checkout, product pages (incl. chicken crepes), and homepage sections.
+- Fixed in the final pass: developer text shown to visitors (locations note, order-confirmation note), public footer link to the unauthenticated /admin preview, best-seller rank numbers covering badges, identical drink illustrations (now colour per drink), low-contrast "sample content" tag on dark.
+- Still not verified: a real browser on real devices (all checks ran in headless Chrome), screen-reader testing, and cross-browser (Safari/Firefox).
+
 ## Final QA (production build)
 - 252 automated checks: 18 pages x 7 widths (320, 390, 430, 768, 1024, 1440, 1920) x EN/AR (RTL): 0 real horizontal scrolls, 0 unclipped overflow, 0 console errors.
 - Found and fixed during QA: real horizontal scroll on the home page at 1024px (`main { overflow-x: clip }`), product sticky-bar button overflowing at 320px, header logo wrapping to 3 lines at 320px.

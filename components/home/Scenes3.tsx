@@ -277,10 +277,10 @@ export function BestSellers() {
       <div className="wrap">
         <p className="kicker">{t("best.kicker")}</p>
         <h2 id="best-h" className="display mt-2 text-[clamp(2.4rem,6vw,5rem)]">{t("best.title")}</h2>
-        <ol className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="mt-24 grid gap-x-5 gap-y-24 sm:grid-cols-2 lg:grid-cols-4">
           {list.map((p, i) => (
             <li key={p.id} className="relative">
-              <span aria-hidden className="display pointer-events-none absolute -top-6 start-2 z-10 text-8xl text-tomato/80">{i + 1}</span>
+              <span aria-hidden className="display pointer-events-none absolute -top-[4.6rem] start-1 z-10 text-8xl text-tomato/80">{i + 1}</span>
               <ProductCard product={p} onQuick={setQuick} />
             </li>
           ))}

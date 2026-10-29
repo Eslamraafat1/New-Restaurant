@@ -168,7 +168,7 @@ export function KitchenStory() {
             {words.map((w, i) => <span key={i} data-word className="inline-block me-[0.25em]">{w}</span>)}
           </h2>
           <p className="mt-6 max-w-xl text-lg text-[#cdbba2]">{t("story.body")}</p>
-          <div className="mt-4"><SampleTag /></div>
+          <div className="mt-4 [&>span]:!border-[#7a6150] [&>span]:!text-[#d9c7b0]"><SampleTag /></div>
           <Link href="/our-story" className="btn btn-primary mt-6">{t("common.explore")}<ArrowRight size={16} className="rtl:rotate-180" aria-hidden /></Link>
         </div>
         <div data-photo aria-hidden className="mx-auto aspect-square w-[min(70vw,20rem)] rounded-[40%_60%_55%_45%/50%_45%_55%_50%] bg-[#3a2a20] p-6">

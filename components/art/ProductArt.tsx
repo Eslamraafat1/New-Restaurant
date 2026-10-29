@@ -5,6 +5,8 @@ import { useI18n } from "@/lib/i18n";
 import { BurgerSVG, CrepeSVG, DishSVG, burgerFromConfig, crepeFromConfig } from "./others";
 import { PizzaSVG, configToLayers } from "./pizza";
 
+const drinkTone = (id: string) => (id.includes("strawberry") ? "#e8465a" : id.includes("latte") || id.includes("tea") ? "#b98a5e" : id.includes("lemon") ? "#d9e36a" : "#f2b84a");
+
 /** Renders the right illustration for a product and (optionally) its live configuration. */
 export function ProductArt({
   product,
@@ -29,6 +31,6 @@ export function ProductArt({
     case "burger":
       return <BurgerSVG layers={burgerFromConfig(cfg)} plain={!live} className={className} title={title} />;
     default:
-      return <DishSVG kind={product.art} className={className} title={title} />;
+      return <DishSVG kind={product.art} className={className} title={title} tone={drinkTone(product.id)} />;
   }
 }
