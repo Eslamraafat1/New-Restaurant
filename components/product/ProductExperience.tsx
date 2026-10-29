@@ -279,9 +279,9 @@ function ProductBody({ product, editKey }: { product: Product; editKey: string |
       <div className="safe-b fixed inset-x-0 bottom-0 z-40 border-t border-line bg-bg/95 px-4 pt-3 backdrop-blur md:hidden">
         <div className="mx-auto flex max-w-md items-center gap-3">
           <QtyStepper value={qty} onChange={setQty} />
-          <button type="button" className="btn btn-primary flex-1" disabled={errors.length > 0 || !product.available} onClick={submit}>
-            {added ? <Check size={18} aria-hidden /> : null}
-            <span>{editing ? t("p.save") : t("common.add")}</span>
+          <button type="button" className="btn btn-primary min-w-0 flex-1 !px-3" disabled={errors.length > 0 || !product.available} onClick={submit}>
+            {added ? <Check size={18} aria-hidden /> : <ShoppingBag size={18} aria-hidden className="min-[360px]:hidden" />}
+            <span className="max-[359px]:sr-only">{editing ? t("p.save") : t("common.add")}</span>
             <span className="tabular-nums">{money(total)}</span>
           </button>
         </div>

@@ -18,7 +18,7 @@ export function Logo({ className = "" }: { className?: string }) {
   return (
     <Link href="/" className={`inline-flex items-center gap-2.5 ${className}`} aria-label={brand.name}>
       <LogoMark />
-      <span className="display text-[1.05rem] tracking-tight sm:text-xl" style={{ lineHeight: 1 }}>
+      <span className="display whitespace-nowrap text-[1.05rem] tracking-tight max-[359px]:text-[0.72rem] sm:text-xl" style={{ lineHeight: 1 }}>
         CRUST<span className="text-tomatotext"> &amp; </span>CRAVE
       </span>
     </Link>

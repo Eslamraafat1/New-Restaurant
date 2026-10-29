@@ -52,7 +52,7 @@ export function ThemeToggle() {
 export function LangToggle() {
   const { t, locale, toggleLocale } = useI18n();
   return (
-    <button type="button" onClick={toggleLocale} aria-label={t("nav.lang")} lang={locale === "en" ? "ar" : "en"} className="icon-btn !w-auto px-3.5 text-sm font-extrabold">
+    <button type="button" onClick={toggleLocale} aria-label={t("nav.lang")} lang={locale === "en" ? "ar" : "en"} className="icon-btn !w-auto px-3 text-sm font-extrabold max-[359px]:!px-2 max-[359px]:text-xs">
       {locale === "en" ? "العربية" : "EN"}
     </button>
   );
@@ -131,7 +131,7 @@ export function Header() {
 
   return (
     <header className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? "border-b border-line bg-bg/90 backdrop-blur-md" : "bg-transparent"}`}>
-      <div className="wrap flex h-[4.25rem] items-center gap-2 sm:gap-3">
+      <div className="wrap flex h-[4.25rem] items-center gap-1.5 sm:gap-3">
         <button type="button" className="icon-btn lg:hidden" aria-label={t("nav.open")} aria-haspopup="dialog" onClick={() => setMobile(true)}>
           <Menu size={20} aria-hidden />
         </button>

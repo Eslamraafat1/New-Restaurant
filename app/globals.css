@@ -280,3 +280,6 @@ html.js main .kicker:not([data-no-reveal]) { opacity: 0; animation: reveal-fallb
 @media (prefers-reduced-motion: reduce) {
   html.js main [data-card], html.js main h2.display, html.js main .kicker { opacity: 1; animation: none; }
 }
+
+/* animated children (framer/GSAP offsets) must never create a horizontal page scroll; `clip` keeps sticky + pinned scenes working */
+main { overflow-x: clip; }
