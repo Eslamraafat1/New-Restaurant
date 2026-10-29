@@ -12,11 +12,13 @@ import { useI18n } from "@/lib/i18n";
 import type { Product } from "@/lib/api/types";
 
 function ReelCard({ product, index }: { product: Product; index: number }) {
-  const { t, l, money, num } = useI18n();
+  const { t, l, money, locale } = useI18n();
   const { add, done } = useQuickAdd(product);
+  // one formatter for the whole "01" so Arabic gets "٠١" instead of a Latin 0 glued to an Arabic digit
+  const label = new Intl.NumberFormat(locale === "ar" ? "ar-EG" : "en-EG", { minimumIntegerDigits: 2, useGrouping: false }).format(index + 1);
   return (
     <article data-reelcard className="relative flex h-[min(34rem,72svh)] w-[min(84vw,32rem)] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-[2.5rem] border border-white/10 bg-gradient-to-br from-[#2a1a12] to-[#160e0a] p-6 text-[#f6ead4] sm:p-8">
-      <span data-num aria-hidden className="display outline-text pointer-events-none absolute -end-4 -top-6 text-[11rem] leading-none text-[#ffb21e] opacity-40">{num(index + 1).padStart(2, "0")}</span>
+      <span data-num aria-hidden className="display outline-text pointer-events-none absolute -end-4 -top-6 text-[11rem] leading-none text-[#ffb21e] opacity-40">{label}</span>
       <div data-art className="relative mx-auto mt-4 aspect-square w-[62%] will-change-transform">
         <div className="absolute inset-0 rounded-full bg-tomato/30 blur-2xl" />
         <ProductArt product={product} className="relative h-full w-full drop-shadow-[0_25px_25px_rgba(0,0,0,.6)]" />
@@ -69,7 +71,7 @@ export function SignatureReel() {
         gsap.fromTo(c.querySelector("[data-art]"), { rotation: -70, scale: 0.7 }, { rotation: 70, scale: 1.08, ease: "none", scrollTrigger: trig });
         gsap.fromTo(c.querySelector("[data-num]"), { xPercent: 40 }, { xPercent: -40, ease: "none", scrollTrigger: trig });
         gsap.fromTo(c, { rotateY: rtl ? -18 : 18 }, { rotateY: rtl ? 18 : -18, ease: "none", transformPerspective: 1200, scrollTrigger: trig });
-        gsap.fromTo(c, { opacity: 0.5 }, { keyframes: { "50%": { opacity: 1 }, "100%": { opacity: 0.5 }, easeEach: "none" }, ease: "none", scrollTrigger: trig });
+        gsap.fromTo(c, { opacity: 0.5 }, { keyframes: { "25%": { opacity: 1 }, "75%": { opacity: 1 }, "100%": { opacity: 0.5 }, easeEach: "none" }, ease: "none", scrollTrigger: trig });
       });
       gsap.fromTo("[data-reelword]", { xPercent: 0 }, { xPercent: rtl ? 40 : -40, ease: "none", scrollTrigger: { trigger: el, start: "top top", end: () => "+=" + dist(), scrub: true } });
       return () => { delete el.dataset.motion; };
