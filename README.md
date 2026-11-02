@@ -1,5 +1,7 @@
 # CRUST & CRAVE – restaurant storefront (front-end)
 
+[![E2E Tests](https://github.com/Eslamraafat1/New-Restaurant/actions/workflows/e2e.yml/badge.svg)](https://github.com/Eslamraafat1/New-Restaurant/actions/workflows/e2e.yml)
+
 A fictional pizza / crepe / burger brand: cinematic GSAP scroll scenes, a full digital menu, live product customiser,
 cart + demo checkout, English/Arabic (RTL), light/dark themes. Built with **Next.js 16 (App Router, Cache Components), React 19, Tailwind 4,
 GSAP + ScrollTrigger, Framer Motion, Lenis**.
@@ -47,3 +49,7 @@ described errors; controls are keyboard operable.
 ## Known limits (see `IMPLEMENTATION_STATUS.md`)
 Illustrated (vector) food art, not photography. Payments, authentication, order persistence and a real admin are backend work.
 Legal text, contact details, branches and reviews are placeholders/sample and are labelled as such.
+
+## 🧪 Testing
+
+Automated **Playwright** end-to-end tests run on every push via **GitHub Actions** (desktop + mobile Chrome). See [`e2e/`](./e2e).
