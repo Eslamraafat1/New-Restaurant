@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Menu, Moon, Search, ShoppingBag, Sun } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useSitePathname } from "@/lib/use-site-pathname";
 import { useEffect, useRef, useState } from "react";
 import { cartStore, drawer } from "@/lib/cart";
 import { useI18n } from "@/lib/i18n";
@@ -62,7 +62,7 @@ function MoreMenu() {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const path = usePathname();
+  const path = useSitePathname();
   const [prev, setPrev] = useState(path);
   if (prev !== path) { setPrev(path); setOpen(false); }
   useEffect(() => {
@@ -105,7 +105,7 @@ function MoreMenu() {
 
 export function Header() {
   const { t, num } = useI18n();
-  const path = usePathname();
+  const path = useSitePathname();
   const lines = cartStore.use();
   const count = lines.reduce((s, l) => s + l.qty, 0);
   const [mobile, setMobile] = useState(false);

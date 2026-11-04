@@ -23,8 +23,10 @@ function Skeletons() {
 }
 
 function Filters({
-  q, setQ, sort, setSort, diet, setDiet, saved, setSaved,
+  idp, q, setQ, sort, setSort, diet, setDiet, saved, setSaved,
 }: {
+  /** id prefix – the filters render twice (desktop bar + mobile sheet), so ids must differ */
+  idp: string;
   q: string; setQ: (v: string) => void; sort: Sort; setSort: (v: Sort) => void;
   diet: DietaryTag[]; setDiet: (v: DietaryTag[]) => void; saved: boolean; setSaved: (v: boolean) => void;
 }) {
@@ -32,9 +34,9 @@ function Filters({
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
       <div className="relative flex-1">
-        <label htmlFor="menu-q" className="sr-only">{t("menu.search")}</label>
+        <label htmlFor={`${idp}-q`} className="sr-only">{t("menu.search")}</label>
         <Search size={18} aria-hidden className="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2 text-soft" />
-        <input id="menu-q" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("menu.search")} className="field !ps-11" />
+        <input id={`${idp}-q`} type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("menu.search")} className="field !ps-11" />
       </div>
       <fieldset className="flex flex-wrap items-center gap-2">
         <legend className="sr-only">{t("menu.dietary")}</legend>
@@ -46,8 +48,8 @@ function Filters({
         <button type="button" className="chip" aria-pressed={saved} onClick={() => setSaved(!saved)}>♥ {t("nav.wishlist")}</button>
       </fieldset>
       <div>
-        <label htmlFor="menu-sort" className="sr-only">{t("menu.sort")}</label>
-        <select id="menu-sort" className="field !w-auto" value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
+        <label htmlFor={`${idp}-sort`} className="sr-only">{t("menu.sort")}</label>
+        <select id={`${idp}-sort`} className="field !w-auto" value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
           <option value="popular">{t("menu.sort.popular")}</option>
           <option value="low">{t("menu.sort.low")}</option>
           <option value="high">{t("menu.sort.high")}</option>
@@ -133,7 +135,7 @@ export function MenuView({ only }: { only?: CategoryId }) {
             {activeFilters > 0 && <span className="absolute -end-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-tomato text-[0.65rem] font-black text-white">{activeFilters}</span>}
           </button>
         </div>
-        <div className="wrap hidden pb-3 lg:block"><Filters {...filterProps} /></div>
+        <div className="wrap hidden pb-3 lg:block"><Filters idp="menu" {...filterProps} /></div>
       </div>
 
       <div className="wrap py-10">
@@ -176,7 +178,7 @@ export function MenuView({ only }: { only?: CategoryId }) {
       <Modal open={drawer} onClose={() => setDrawer(false)} label={t("menu.filters")} side="bottom">
         <div className="space-y-5 p-6 pt-14">
           <h2 className="display text-3xl">{t("menu.filters")}</h2>
-          <Filters {...filterProps} />
+          <Filters idp="menu-sheet" {...filterProps} />
           <div className="flex gap-2">
             <button className="btn btn-ghost flex-1" onClick={clear}>{t("menu.clear")}</button>
             <button className="btn btn-primary flex-1" onClick={() => setDrawer(false)}>{t("menu.apply")}</button>

@@ -1,10 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  experimental: {
-    agentFeedback: true,
-  },
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {
@@ -14,6 +10,10 @@ const nextConfig: NextConfig = {
         as: "*.css",
       },
     },
+  },
+  async headers() {
+    // the admin preview has no authentication – keep it out of search results even if linked
+    return [{ source: "/admin", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }];
   },
 };
 

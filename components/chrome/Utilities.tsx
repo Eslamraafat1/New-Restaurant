@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUp, ShoppingBag } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useSitePathname } from "@/lib/use-site-pathname";
 import { useEffect, useRef, useState } from "react";
 import { cartStore } from "@/lib/cart";
 import { useI18n } from "@/lib/i18n";
@@ -76,7 +76,7 @@ export function Toaster() {
 export function FloatingCart() {
   const { t, num, money } = useI18n();
   const lines = cartStore.use();
-  const path = usePathname();
+  const path = useSitePathname();
   const count = lines.reduce((s, l) => s + l.qty, 0);
   const total = lines.reduce((s, l) => s + l.qty * l.unitPrice, 0);
   if (path.startsWith("/cart") || path.startsWith("/checkout") || path.startsWith("/order")) return null;

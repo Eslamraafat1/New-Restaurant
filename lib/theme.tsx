@@ -33,5 +33,9 @@ export function ThemeSync() {
   return null;
 }
 
-/** Runs before first paint (inline in <head>) so there is no theme / direction flash. */
-export const preHydrationScript = `(function(){var d=document.documentElement;d.classList.add('js');try{var t=JSON.parse(localStorage.getItem('cc-theme')||'"system"');if(t==='light'||t==='dark')d.setAttribute('data-theme',t);var l=JSON.parse(localStorage.getItem('cc-lang')||'"en"');if(l==='ar'){d.lang='ar';d.dir='rtl';}}catch(e){}})();`;
+/**
+ * Runs before first paint (inline in <head>) so there is no theme flash.
+ * Language is server-rendered from the `cc-lang` cookie (see proxy.ts); this only migrates a
+ * language saved by older versions in localStorage into the cookie.
+ */
+export const preHydrationScript = `(function(){var d=document.documentElement;d.classList.add('js');try{var t=JSON.parse(localStorage.getItem('cc-theme')||'"system"');if(t==='light'||t==='dark')d.setAttribute('data-theme',t);var l=localStorage.getItem('cc-lang');if(l!==null){localStorage.removeItem('cc-lang');if(!/(?:^|; )cc-lang=/.test(document.cookie)&&JSON.parse(l)==='ar'){document.cookie='cc-lang=ar; path=/; max-age=31536000; SameSite=Lax';d.lang='ar';d.dir='rtl';}}}catch(e){}})();`;

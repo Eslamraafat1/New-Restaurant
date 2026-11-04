@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { useSitePathname } from "@/lib/use-site-pathname";
 import { useEffect } from "react";
 import { getGsap, reducedMotion, syncLenis } from "@/lib/gsap";
 
@@ -13,7 +13,7 @@ import { getGsap, reducedMotion, syncLenis } from "@/lib/gsap";
  * Skipped completely for reduced-motion users. Everything is reverted on route change.
  */
 export function ScrollFx() {
-  const path = usePathname();
+  const path = useSitePathname();
 
   useEffect(() => {
     if (reducedMotion()) return;
