@@ -1,12 +1,7 @@
-import type { Metadata } from "next";
-import { pageMeta } from "@/lib/site";
+import { staticPageMetadata } from "@/lib/page-meta";
 import { LocationsPage } from "@/components/pages/Info";
 
-export const metadata: Metadata = pageMeta({
-  title: "Locations",
-  description: "Crust & Crave branches. Demo storefront – branch data is sample content.",
-  path: "/locations",
-});
+export const generateMetadata = staticPageMetadata("/locations");
 
 export default function Page() {
   return <LocationsPage />;

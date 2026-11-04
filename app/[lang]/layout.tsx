@@ -5,7 +5,8 @@ import { lang } from "next/root-params";
 import "../globals.css";
 import { brand } from "@/lib/brand";
 import { LocaleProvider } from "@/lib/i18n";
-import { defaultDescription, isLocale, locales, ogImage, siteUrl } from "@/lib/site";
+import { ogLocale, otherLocale } from "@/lib/i18n/paths";
+import { defaultDescriptions, isLocale, locales, ogImage, pageLocale, siteUrl } from "@/lib/site";
 import { preHydrationScript } from "@/lib/theme";
 import { SiteShell } from "@/components/chrome/SiteShell";
 
@@ -13,24 +14,31 @@ const display = Fraunces({ variable: "--font-display", subsets: ["latin"], weigh
 const body = Manrope({ variable: "--font-body", subsets: ["latin"] });
 const arabic = Cairo({ variable: "--font-ar", subsets: ["arabic", "latin"], weight: ["400", "600", "800", "900"] });
 
-const defaultTitle = `${brand.name} – Pizza, Crepes & Burgers`;
-
-export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: { default: defaultTitle, template: `%s · ${brand.name}` },
-  description: defaultDescription,
-  applicationName: brand.name,
-  openGraph: {
-    type: "website",
-    siteName: brand.name,
-    locale: "en_US",
-    alternateLocale: ["ar_EG"],
-    title: defaultTitle,
-    description: defaultDescription,
-    images: [ogImage],
-  },
-  twitter: { card: "summary_large_image", title: defaultTitle, description: defaultDescription, images: [ogImage.url] },
+const defaultTitles = {
+  en: `${brand.name} – Pizza, Crepes & Burgers`,
+  ar: `${brand.name} – بيتزا وكريب وبرجر`,
 };
+
+/** Site-wide defaults per language; pages override title, description, canonical and hreflang. */
+export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Promise<Metadata> {
+  const l = await pageLocale(params);
+  return {
+    metadataBase: new URL(siteUrl),
+    title: { default: defaultTitles[l], template: `%s · ${brand.name}` },
+    description: defaultDescriptions[l],
+    applicationName: brand.name,
+    openGraph: {
+      type: "website",
+      siteName: brand.name,
+      locale: ogLocale[l],
+      alternateLocale: [ogLocale[otherLocale(l)]],
+      title: defaultTitles[l],
+      description: defaultDescriptions[l],
+      images: [ogImage],
+    },
+    twitter: { card: "summary_large_image", title: defaultTitles[l], description: defaultDescriptions[l], images: [ogImage.url] },
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -42,7 +50,7 @@ export const viewport: Viewport = {
   ],
 };
 
-/** Both languages are prerendered; proxy.ts picks one per request from the `cc-lang` cookie. */
+/** Both languages are prerendered: English is served at the root (rewritten by proxy.ts), Arabic under /ar. */
 export async function generateStaticParams() {
   return locales.map((l) => ({ lang: l }));
 }

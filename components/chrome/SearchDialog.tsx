@@ -21,7 +21,7 @@ export function normalizeText(s: string) {
 
 export function SearchDialog() {
   const open = searchStore.use();
-  const { t, l, money } = useI18n();
+  const { t, l, money, localeHref } = useI18n();
   const { products } = useCatalog();
   const router = useRouter();
   const [q, setQ] = useState("");
@@ -36,7 +36,7 @@ export function SearchDialog() {
     return list.slice(0, 6);
   }, [q, products]);
 
-  const go = (slug: string) => { close(); router.push(`/product/${slug}`); };
+  const go = (slug: string) => { close(); router.push(localeHref(`/product/${slug}`)); };
 
   return (
     <Modal open={open} onClose={close} label={t("nav.search")} hideClose className="!max-w-xl">

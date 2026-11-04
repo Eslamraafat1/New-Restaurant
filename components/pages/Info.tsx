@@ -1,7 +1,7 @@
 "use client";
 
 import { Copy, MapPin } from "lucide-react";
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { useState } from "react";
 import { Faq } from "@/components/chrome/Accordion";
 import { PageHeader } from "@/components/chrome/PageHeader";

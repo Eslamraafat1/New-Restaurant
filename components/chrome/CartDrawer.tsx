@@ -1,7 +1,7 @@
 "use client";
 
 import { ShoppingBag } from "lucide-react";
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { cartStore, cartUiStore, couponStore, drawer } from "@/lib/cart";
 import { calcTotals } from "@/lib/pricing";
 import { useI18n } from "@/lib/i18n";

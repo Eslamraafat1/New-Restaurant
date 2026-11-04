@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { ChevronRight } from "lucide-react";
 import type { ReactNode } from "react";
 import { useI18n } from "@/lib/i18n";
@@ -10,8 +10,9 @@ export interface Crumb { label?: string; key?: Key; href?: string }
 
 export function Breadcrumbs({ items }: { items: Crumb[] }) {
   const { t } = useI18n();
+  // relative z-10: tall display headings (Arabic line-height) must not cover the crumb links
   return (
-    <nav aria-label="Breadcrumb" className="text-sm text-soft">
+    <nav aria-label="Breadcrumb" className="relative z-10 text-sm text-soft">
       <ol className="flex flex-wrap items-center gap-1">
         <li><Link href="/" className="font-semibold hover:text-tomatotext">{t("p.crumbHome")}</Link></li>
         {items.map((c, i) => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { useEffect, useRef } from "react";
 import { BurgerSVG, BURGER_FULL, CrepeFoldedSVG, CrepeSVG, CREPE_FULL } from "@/components/art/others";
 import { ProductCard } from "@/components/menu/ProductCard";

@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight, Plus } from "lucide-react";
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { useEffect, useRef } from "react";
 import { ProductArt } from "@/components/art/ProductArt";
 import { Chars } from "@/components/fx/Chars";

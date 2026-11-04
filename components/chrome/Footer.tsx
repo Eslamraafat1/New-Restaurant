@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { useState } from "react";
 import { useCatalog } from "@/lib/catalog";
 import { brand } from "@/lib/brand";

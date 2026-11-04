@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { brand } from "@/lib/brand";
 import type { Locale } from "@/lib/api/types";
+import { localePath, ogLocale, otherLocale } from "@/lib/i18n/paths";
 
 /** Production URL, used when neither NEXT_PUBLIC_SITE_URL nor Vercel's production URL is available. */
 const PRODUCTION_URL = "https://new-restaurant-kappa.vercel.app";
@@ -27,31 +28,47 @@ export const LOCALE_COOKIE = "cc-lang";
  * file convention only attaches it automatically to routes under the same root layout. */
 export const ogImage = { url: "/opengraph-image", width: 1200, height: 630, alt: `${brand.name} – Pizza, Crepes & Burgers` };
 
-export const defaultDescription = `${brand.tagline.en} A fictional demo storefront with a customisable menu and demo checkout.`;
+export const defaultDescriptions: Record<Locale, string> = {
+  en: `${brand.tagline.en} A fictional demo storefront with a customisable menu and demo checkout.`,
+  ar: `${brand.tagline.ar} متجر تجريبي خيالي بمنيو قابل للتخصيص وإتمام طلب تجريبي.`,
+};
+export const defaultDescription = defaultDescriptions.en;
 
 interface PageMetaInput {
+  /** language of the page being described */
+  lang: Locale;
   title: string;
   description?: string;
-  /** path beginning with "/" – becomes the canonical URL */
+  /** language-neutral path beginning with "/" (e.g. "/menu") – the canonical URL is derived per language */
   path: string;
   noindex?: boolean;
 }
 
+/** hreflang map for a language-neutral path: `{ en: /menu, ar: /ar/menu, x-default: /menu }`. */
+export const languageAlternates = (path: string) => ({
+  en: localePath("en", path),
+  ar: localePath("ar", path),
+  "x-default": localePath("en", path),
+});
+
 /**
- * Per-page metadata: title, description, canonical, Open Graph and Twitter card.
+ * Per-page metadata: title, description, canonical + hreflang alternates, Open Graph and Twitter card.
+ * Every page exists in both languages, so each URL is self-canonical and lists its translation.
  */
-export function pageMeta({ title, description = defaultDescription, path, noindex }: PageMetaInput): Metadata {
-  const fullTitle = path === "/" ? title : `${title} · ${brand.name}`;
+export function pageMeta({ lang, title, description = defaultDescriptions[lang], path, noindex }: PageMetaInput): Metadata {
+  const isHome = path === "/";
+  const fullTitle = isHome ? title : `${title} · ${brand.name}`;
+  const url = localePath(lang, path);
   return {
-    title: path === "/" ? { absolute: title } : title,
+    title: isHome ? { absolute: title } : title,
     description,
-    alternates: { canonical: path },
+    alternates: { canonical: url, ...(noindex ? {} : { languages: languageAlternates(path) }) },
     openGraph: {
       type: "website",
       siteName: brand.name,
-      locale: "en_US",
-      alternateLocale: ["ar_EG"],
-      url: path,
+      locale: ogLocale[lang],
+      alternateLocale: [ogLocale[otherLocale(lang)]],
+      url,
       title: fullTitle,
       description,
       images: [ogImage],
@@ -61,16 +78,23 @@ export function pageMeta({ title, description = defaultDescription, path, noinde
   };
 }
 
+/** Reads the `[lang]` segment of a page's params (validated; unknown values fall back to English). */
+export const pageLocale = async (params: Promise<{ lang: string }>): Promise<Locale> => {
+  const { lang } = await params;
+  return isLocale(lang) ? lang : "en";
+};
+
 /** Serialises JSON-LD safely for an inline <script> (escapes "<" to prevent markup injection). */
 export const jsonLd = (data: unknown) => ({ __html: JSON.stringify(data).replace(/</g, "\\u003c") });
 
-export const breadcrumbLd = (items: { name: string; path: string }[]) => ({
+/** Breadcrumbs for a page in `lang`; item paths are language-neutral and get the locale prefix here. */
+export const breadcrumbLd = (lang: Locale, items: { name: string; path: string }[]) => ({
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   itemListElement: items.map((it, i) => ({
     "@type": "ListItem",
     position: i + 1,
     name: it.name,
-    item: absoluteUrl(it.path),
+    item: absoluteUrl(localePath(lang, it.path)),
   })),
 });

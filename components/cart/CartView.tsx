@@ -1,7 +1,7 @@
 "use client";
 
 import { ShoppingBag, Tag, Trash2 } from "lucide-react";
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { useState } from "react";
 import { CartLines } from "@/components/chrome/CartLines";
 import { Modal } from "@/components/chrome/Modal";

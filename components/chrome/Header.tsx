@@ -2,11 +2,14 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Menu, Moon, Search, ShoppingBag, Sun } from "lucide-react";
-import Link from "next/link";
+import NextLink from "next/link";
+import { useRouter } from "next/navigation";
+import Link from "@/lib/i18n/link";
+import { localePath, otherLocale } from "@/lib/i18n/paths";
 import { useSitePathname } from "@/lib/use-site-pathname";
 import { useEffect, useRef, useState } from "react";
 import { cartStore, drawer } from "@/lib/cart";
-import { useI18n } from "@/lib/i18n";
+import { rememberLocale, useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme";
 import type { Key } from "@/lib/i18n/dictionary";
 import { Logo } from "./Logo";
@@ -49,12 +52,35 @@ export function ThemeToggle() {
   );
 }
 
+/**
+ * Language switch: a real link to the same page in the other language (`/menu/pizza` ⇄ `/ar/menu/pizza`),
+ * so crawlers can follow it too. The choice is also remembered in the `cc-lang` cookie as a preference.
+ */
 export function LangToggle() {
-  const { t, locale, toggleLocale } = useI18n();
+  const { t, locale } = useI18n();
+  const router = useRouter();
+  const path = useSitePathname();
+  const next = otherLocale(locale);
+  const target = localePath(next, path);
   return (
-    <button type="button" onClick={toggleLocale} aria-label={t("nav.lang")} lang={locale === "en" ? "ar" : "en"} className="icon-btn !w-auto px-3 text-sm font-extrabold max-[359px]:!px-2 max-[359px]:text-xs">
+    <NextLink
+      href={target}
+      hrefLang={next}
+      lang={next}
+      aria-label={t("nav.lang")}
+      onClick={(e) => {
+        rememberLocale(next);
+        // keep query/hash (e.g. /product/x?edit=…) – read at click time so the prerendered link stays static
+        const extra = window.location.search + window.location.hash;
+        if (extra && !e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0) {
+          e.preventDefault();
+          router.push(target + extra);
+        }
+      }}
+      className="icon-btn !w-auto px-3 text-sm font-extrabold max-[359px]:!px-2 max-[359px]:text-xs"
+    >
       {locale === "en" ? "العربية" : "EN"}
-    </button>
+    </NextLink>
   );
 }
 

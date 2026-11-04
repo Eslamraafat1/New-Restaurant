@@ -1,7 +1,7 @@
 "use client";
 
 import { Pencil, Trash2 } from "lucide-react";
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { ProductArt } from "@/components/art/ProductArt";
 import { QtyStepper } from "@/components/chrome/ui";
 import { removeLine, setQty } from "@/lib/cart";

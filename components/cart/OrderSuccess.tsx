@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { useCatalog } from "@/lib/catalog";
 import { describeConfig } from "@/lib/describe";
 import { lastOrderStore } from "@/lib/cart";

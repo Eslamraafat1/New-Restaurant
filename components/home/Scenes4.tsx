@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight, ChevronLeft, ChevronRight, Copy, MapPin, Plus, Star } from "lucide-react";
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { useEffect, useRef, useState } from "react";
 import { DishSVG } from "@/components/art/others";
 import { PizzaSVG, FULL_LAYERS, IngredientIcon } from "@/components/art/pizza";

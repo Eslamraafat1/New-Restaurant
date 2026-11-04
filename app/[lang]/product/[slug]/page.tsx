@@ -8,8 +8,8 @@ import { products } from "@/data/demo/products";
 import { getCategories } from "@/lib/api/categories";
 import { getProduct, getProducts } from "@/lib/api/products";
 import type { Product } from "@/lib/api/types";
-import { breadcrumbLd, pageMeta } from "@/lib/site";
-import { menuItemLd } from "@/lib/structured-data";
+import { breadcrumbLd, pageLocale, pageMeta } from "@/lib/site";
+import { menuItemLd, rootCrumbs } from "@/lib/structured-data";
 
 export async function generateStaticParams() {
   // pre-render whatever the configured API (demo or real) lists; fall back to demo data so the build never fails offline
@@ -29,14 +29,14 @@ async function load(slug: string): Promise<Product | null> {
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/product/[slug]">): Promise<Metadata> {
-  const { slug } = await params;
+  const [{ slug }, lang] = await Promise.all([params, pageLocale(params)]);
   const p = await load(slug);
-  if (!p) return { title: "Not found", robots: { index: false } };
-  return pageMeta({ title: p.name.en, description: p.description.en, path: `/product/${p.slug}` });
+  if (!p) return { title: lang === "ar" ? "الصفحة غير موجودة" : "Not found", robots: { index: false } };
+  return pageMeta({ lang, title: p.name[lang], description: p.description[lang], path: `/product/${p.slug}` });
 }
 
 async function ProductContent({ params }: { params: PageProps<"/[lang]/product/[slug]">["params"] }) {
-  const { slug } = await params;
+  const [{ slug }, lang] = await Promise.all([params, pageLocale(params)]);
   const product = await load(slug);
   if (!product) notFound();
   const cats = await getCategories().catch(() => categories);
@@ -45,12 +45,11 @@ async function ProductContent({ params }: { params: PageProps<"/[lang]/product/[
     <>
       <JsonLd
         data={[
-          { "@context": "https://schema.org", ...menuItemLd(product) },
-          breadcrumbLd([
-            { name: "Home", path: "/" },
-            { name: "Menu", path: "/menu" },
-            ...(cat ? [{ name: cat.name.en, path: `/menu/${cat.slug}` }] : []),
-            { name: product.name.en, path: `/product/${product.slug}` },
+          { "@context": "https://schema.org", ...menuItemLd(product, lang) },
+          breadcrumbLd(lang, [
+            ...rootCrumbs(lang),
+            ...(cat ? [{ name: cat.name[lang], path: `/menu/${cat.slug}` }] : []),
+            { name: product.name[lang], path: `/product/${product.slug}` },
           ]),
         ]}
       />

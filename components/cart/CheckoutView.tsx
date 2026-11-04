@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2, ShieldAlert } from "lucide-react";
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { CartLines } from "@/components/chrome/CartLines";
@@ -18,7 +18,7 @@ import { CouponBox, TotalsBox } from "./CartView";
 type Errors = Partial<Record<"name" | "phone" | "email" | "address" | "branch", Key>>;
 
 export function CheckoutView() {
-  const { t, l } = useI18n();
+  const { t, l, localeHref } = useI18n();
   const { branches } = useCatalog();
   const router = useRouter();
   const lines = cartStore.use();
@@ -68,7 +68,7 @@ export function CheckoutView() {
       // success is only reached after the (demo or live) service accepted the order
       lastOrderStore.set(res);
       clearCart();
-      router.push("/order");
+      router.push(localeHref("/order"));
     } catch {
       setFailed(true);
       setBusy(false);

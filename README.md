@@ -81,7 +81,9 @@ The front-end is **backend-ready**. All data flows through a typed API layer (`l
 
 ### Internationalisation & RTL
 - Full **English / Arabic** dictionary (`lib/i18n`) with a `useI18n()` hook (`t`, `l`, `money`), and `{ en, ar }` strings throughout the data model.
-- **Server-rendered language, no English flash**: the choice is stored in a `cc-lang` cookie. `proxy.ts` rewrites each request (URLs stay the same) to the prerendered `app/[lang]` tree, so Arabic visitors receive Arabic HTML with `<html lang="ar" dir="rtl">` on the first byte. Both languages are fully static; switching language is still instant on the client.
+- **Real URLs per language**: English stays at the root (`/menu/pizza`), Arabic lives under `/ar` (`/ar/menu/pizza`). `proxy.ts` rewrites English URLs to the internal `app/[lang]` tree and lets `/ar/…` through, so every URL serves one language with `<html lang dir>` rendered on the server; both languages are fully prerendered. `/en/…` permanently redirects (308) to the unprefixed URL so there are no duplicates.
+- **Locale-aware links**: `localePath(lang, path)` (`lib/i18n/paths.ts`) and a drop-in `Link` (`lib/i18n/link.tsx`) keep visitors in their language; `useI18n().localeHref()` does the same for `router.push`.
+- **Language switcher** is a real link to the same page in the other language (`/menu/x` ⇄ `/ar/menu/x`, query string kept) and remembers the choice in a `cc-lang` cookie. The cookie is only a preference: the server never redirects on it (no cookie- or `Accept-Language`-based redirect of `/`), so crawlers and shared links always get the language of the URL.
 - Logical CSS properties (`start` / `end`) and a dedicated Arabic typeface (Cairo) alongside Fraunces and Manrope, loaded through `next/font`.
 
 ### Themes
@@ -95,12 +97,12 @@ The front-end is **backend-ready**. All data flows through a typed API layer (`l
 - A measured fix from development QA: an SVG `feTurbulence` grain overlay dropped headless-Chrome frame rate to about 1 FPS. It was replaced with a pre-rendered noise tile (`public/noise.png`), which ran at 60 FPS in the same test.
 
 ### SEO
-- `metadataBase` + a `pageMeta()` helper (`lib/site.ts`): unique title, description, **canonical URL**, **Open Graph** and **Twitter card** on every route; `generateMetadata` on category and product pages.
-- `app/robots.ts` and `app/sitemap.ts`: the sitemap lists every indexable page, all 9 menu categories and all 32 dishes.
+- `metadataBase` + a `pageMeta()` helper (`lib/site.ts`): localized title and description, a **self-referencing canonical per language**, **hreflang alternates** (`en`, `ar`, `x-default` → English), `og:locale` + `og:locale:alternate`, and a Twitter card on every route (copy per language in `lib/page-meta.ts`).
+- `app/robots.ts` and `app/sitemap.ts`: the sitemap lists every indexable page, all 9 menu categories and all 32 dishes **in both languages** (104 URLs), each with `<xhtml:link rel="alternate" hreflang>` entries.
 - Branded share image generated with `next/og` (`app/opengraph-image.tsx`).
 - **JSON-LD**: `Restaurant` + `WebSite` on the home page, `Menu` → `MenuSection` → `MenuItem` (with `Offer` price in EGP and `suitableForDiet`) on the menu, `MenuItem` on product pages, and `BreadcrumbList` on menu, category and product pages. No address, phone, opening hours or ratings are emitted because those are placeholders in this demo.
 - The site URL resolves from `NEXT_PUBLIC_SITE_URL`, then Vercel's production domain, then the production URL, so canonicals can never point at `localhost`.
-- `/admin` (no auth), `/cart`, `/checkout` and `/order` are `noindex` and excluded from the sitemap; `/admin` also sends `X-Robots-Tag: noindex, nofollow`.
+- `/admin` (no auth), `/cart`, `/checkout` and `/order` (and their `/ar` versions) are `noindex` and excluded from the sitemap; `/admin` and `/ar/admin` also send `X-Robots-Tag: noindex, nofollow`.
 - Unknown routes, categories and products return a real **HTTP 404** (in demo mode the proxy checks the slug before streaming starts).
 
 ### Accessibility
@@ -127,11 +129,11 @@ The front-end is **backend-ready**. All data flows through a typed API layer (`l
 
 ## Architecture highlights
 
-- **App Router** with 17 page routes (`/`, `/menu`, `/menu/[category]`, `/product/[slug]`, `/cart`, `/checkout`, `/order`, `/offers`, `/about`, `/our-story`, `/ingredients`, `/contact`, `/locations`, `/faq`, `/privacy`, `/terms`, `/admin`), plus custom `not-found`, `error` and `global-error` boundaries. Pages live under `app/[lang]` (the root layout) and are prerendered for `en` and `ar`; `proxy.ts` maps the public URL to the right language from the `cc-lang` cookie.
+- **App Router** with 17 page routes (`/`, `/menu`, `/menu/[category]`, `/product/[slug]`, `/cart`, `/checkout`, `/order`, `/offers`, `/about`, `/our-story`, `/ingredients`, `/contact`, `/locations`, `/faq`, `/privacy`, `/terms`, `/admin`), plus custom `not-found`, `error` and `global-error` boundaries. Pages live under `app/[lang]` (the root layout) and are prerendered for `en` and `ar`; `proxy.ts` maps `/…` to the internal `/en/…` and serves `/ar/…` as is. Because only English URLs are rewritten, the client router's optimistic route prediction is turned off (`experimental.optimisticRouting: false` in `next.config.ts`); otherwise it would guess `/menu` to be `[lang]="menu"` after seeing `/ar` and fire 404 prefetches.
 - **Cache Components** (`cacheComponents: true`): server components await `params` inside `Suspense` boundaries, so the static shell is served immediately and the dynamic parts stream in.
 - **One data layer** (`lib/api/*`): components never contain URLs. A typed `apiFetch` wrapper adds a 10-second timeout via `AbortController` and turns failures into a typed `ApiError` (`http` / `timeout` / `network`). `NEXT_PUBLIC_USE_DEMO_API` switches between demo data and the real backend.
 - **Typed contract**: `lib/api/types.ts` is the source of truth for every field. Demo Route Handlers in `app/api/*` mirror the REST contract (`/menu`, `/products`, `/products/:id`, `/categories`, `/offers`, `/branches`, `/orders`, `/contact`).
-- **State without a library**: a small `useSyncExternalStore`-based store (`lib/store.ts`) persists cart, coupon, wishlist and theme to localStorage and syncs across tabs through the `storage` event. It uses the initial value as the server snapshot, so hydration never mismatches. The language store uses the server-rendered locale as its snapshot and persists to a cookie.
+- **State without a library**: a small `useSyncExternalStore`-based store (`lib/store.ts`) persists cart, coupon, wishlist and theme to localStorage and syncs across tabs through the `storage` event. It uses the initial value as the server snapshot, so hydration never mismatches. The language is not client state at all: it comes from the URL through a React context.
 - **Centralised branding**: name, currency, fees, coupons and contact placeholders live in `lib/brand.ts`, and colours are design tokens in `app/globals.css`.
 - **Resilient build**: `generateStaticParams` falls back to bundled demo data if the backend is unreachable at build time.
 
@@ -143,29 +145,29 @@ What is implemented today:
 |---|---|
 | Titles & descriptions | Title template plus a unique title and description per route; `generateMetadata` on product and category pages |
 | Canonical, Open Graph, Twitter | Absolute canonical, `og:*` and `summary_large_image` on every page; generated 1200×630 share image |
-| Crawling | `robots.txt` (points to the sitemap) and `sitemap.xml` (52 URLs); private/transactional pages are `noindex` |
-| Structured data | `Restaurant`, `WebSite`, `Menu`/`MenuSection`/`MenuItem`, `BreadcrumbList` JSON-LD |
-| Status codes | Unknown routes, categories and products return 404 |
+| Languages | English at `/…`, Arabic at `/ar/…`; per-URL `<html lang dir>`; canonical + `hreflang` (`en`, `ar`, `x-default`) on every indexable page; `og:locale` / `og:locale:alternate` |
+| Crawling | `robots.txt` (points to the sitemap) and `sitemap.xml` (104 URLs: 52 pages × 2 languages, with `xhtml:link` alternates); private/transactional pages are `noindex` |
+| Structured data | `Restaurant`, `WebSite`, `WebPage`, `Menu`/`MenuSection`/`MenuItem`, `BreadcrumbList` JSON-LD, with names, URLs and `inLanguage` in the page's language |
+| Status codes | Unknown routes, categories and products return 404 in both languages (demo mode; see Known limitations for live-API mode) |
 | Pre-rendering | `generateStaticParams` for every category and product; Partial Prerendering via Cache Components |
 | Fonts | Self-hosted with `next/font` |
 | Images | Vector SVG illustrations, no raster product photos |
-| Theme and locale flash | Language is server-rendered from a cookie (no flash); a pre-hydration script sets `data-theme` before first paint |
+| Theme and locale flash | Language is server-rendered from the URL (no flash); a pre-hydration script sets `data-theme` before first paint |
 | Mobile | `viewport-fit=cover` and a colour-scheme-aware `theme-color` |
-
-Not done: separate public `/ar/...` URLs with `hreflang` (Arabic shares the English URL and is chosen by cookie, so search engines index the English version).
 
 ## Testing & QA
 
 ### Automated E2E tests (Playwright)
 
-The [`e2e/`](e2e) package (own `package-lock.json`, Playwright 1.63.0) holds **35 tests**. They run in two projects, **Desktop Chrome** and **Mobile Chrome (Pixel 7)**; the request-level SEO checks run on desktop only, so a full run is **57 test runs**. Motion is set to `reduce` so GSAP/Lenis settle instantly and the flows stay deterministic.
+The [`e2e/`](e2e) package (own `package-lock.json`, Playwright 1.63.0) holds **60 tests**. They run in two projects, **Desktop Chrome** and **Mobile Chrome (Pixel 7)**; the request-level SEO checks run on desktop only, so a full run is **99 test runs** (21 skipped on mobile). Motion is set to `reduce` so GSAP/Lenis settle instantly and the flows stay deterministic.
 
 | Suite | What it checks |
 |---|---|
-| `smoke.spec.js` | 10 key pages return **HTTP 200** with the correct `<title>` and **no console or hydration errors**; an unknown route returns 404 |
+| `smoke.spec.js` | 15 key pages (10 English, 5 Arabic) return **HTTP 200** with the correct `<title>` and **no console or hydration errors**; an unknown route returns 404 |
 | `flows.spec.js` | Category page shows only that category; **dietary filter and search narrow the results**; **sorting** by price reorders dishes; the menu category rail jumps to a section; the **customiser updates the live price** (140 → 195 → 210 → 125); **add to cart → header count → cart subtotal and coupon → checkout totals incl. delivery fee → validation errors and focus → demo order success** with the cart cleared |
-| `preferences.spec.js` | **Language switch** sets `lang="ar" dir="rtl"`, writes the cookie, and the **reloaded server HTML is already Arabic**; switching back restores `ltr`; **theme toggle** persists across reloads; unknown page/product/category return **404** with `noindex` |
-| `seo.spec.js` | `robots.txt` references an absolute sitemap; `sitemap.xml` lists all categories and dishes and no private pages; canonical (absolute `https`, never localhost), `og:*` and Twitter tags on 5 page types; OG image renders; `/admin` and `/checkout` are `noindex`; JSON-LD parses and contains `Restaurant`, `Menu` (9 sections), `MenuItem` with price and a 4-level `BreadcrumbList` |
+| `i18n.spec.js` | **Server HTML** of `/ar/…` has `lang="ar" dir="rtl"` and Arabic text, the English twin `lang="en" dir="ltr"` (6 page pairs); `/` with `cc-lang=ar` stays English (no redirect); `/en/…` → 308; every internal link on an Arabic page stays under `/ar`; the **switcher maps `/menu/pizza` → `/ar/menu/pizza` and back**, flips `lang`/`dir`, sets the cookie and keeps the query string; an **Arabic order flow** (customiser price → add to cart → drawer checkout link → validation → `/ar/order`) |
+| `preferences.spec.js` | **Theme toggle** persists across reloads and carries over when switching to Arabic; unknown page/product/category return **404** with `noindex` in both languages |
+| `seo.spec.js` | `robots.txt` references an absolute sitemap; `sitemap.xml` lists all categories and dishes in both languages with matching `hreflang` alternates and no private pages; canonical (absolute `https`, never localhost, self-referencing), `hreflang` set, `og:locale`, `og:*` and Twitter tags on 5 page types × 2 languages; OG image renders; `/admin` and `/checkout` are `noindex`; JSON-LD parses and contains `Restaurant`, `Menu` (9 sections), `MenuItem` with price and a 4-level `BreadcrumbList`; Arabic pages emit Arabic names, `/ar` URLs and `inLanguage: "ar"` |
 
 ```bash
 cd e2e
@@ -190,7 +192,8 @@ Earlier development passes (headless Chrome on production builds, not re-run her
 - Orders, payments, auth and persistence are not implemented: checkout is a demo and `/admin` is an unauthenticated preview (labelled on the page and `noindex`).
 - Branches, contact details, ratings/reviews and legal text are placeholders or sample data.
 - Food art is layered SVG illustration, not photography.
-- Arabic has no separate URL (see SEO above).
+- With a live API (`NEXT_PUBLIC_USE_DEMO_API=false`), unknown category/product slugs still render the not-found page with HTTP 200 + `noindex` (the proxy only knows the demo catalogue); demo mode returns a real 404.
+- Arabic page copy for titles/descriptions is a translation written for this demo; there is no automatic redirect to Arabic for Arabic-speaking browsers (by design, see Internationalisation).
 
 ## Project structure
 
@@ -201,7 +204,7 @@ Earlier development passes (headless Chrome on production builds, not re-run her
 │   ├── api/                # Demo Route Handlers mirroring the REST contract
 │   ├── robots.ts, sitemap.ts, opengraph-image.tsx
 │   └── globals.css         # Design tokens
-├── proxy.ts                # Cookie-based language rewrite + demo-mode 404s
+├── proxy.ts                # / → internal /en rewrite, /en → 308, demo-mode 404s
 ├── components/
 │   ├── art/                # Layered SVG food illustrations (live pizza preview, crepe, burger)
 │   ├── cart/               # Cart, checkout, order success
@@ -214,7 +217,7 @@ Earlier development passes (headless Chrome on production builds, not re-run her
 ├── data/demo/              # Demo catalogue, options, offers, branches, copy
 ├── lib/
 │   ├── api/                # Typed data layer (config, client, errors, services, types)
-│   ├── i18n/               # EN/AR dictionary + useI18n()
+│   ├── i18n/               # EN/AR dictionary, useI18n(), localePath(), locale-aware Link
 │   ├── brand.ts            # Brand config: name, currency, fees, coupons
 │   ├── cart.ts, store.ts   # Persisted cart / wishlist external store
 │   ├── pricing.ts          # Price calculation and option validation

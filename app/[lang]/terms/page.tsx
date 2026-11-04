@@ -1,12 +1,7 @@
-import type { Metadata } from "next";
-import { pageMeta } from "@/lib/site";
+import { staticPageMetadata } from "@/lib/page-meta";
 import { LegalPage } from "@/components/pages/Info";
 
-export const metadata: Metadata = pageMeta({
-  title: "Terms of service",
-  description: "Crust & Crave terms of service for this demo storefront.",
-  path: "/terms",
-});
+export const generateMetadata = staticPageMetadata("/terms");
 
 export default function Page() {
   return <LegalPage kind="terms" />;

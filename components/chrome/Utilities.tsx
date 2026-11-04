@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUp, ShoppingBag } from "lucide-react";
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { useSitePathname } from "@/lib/use-site-pathname";
 import { useEffect, useRef, useState } from "react";
 import { cartStore } from "@/lib/cart";

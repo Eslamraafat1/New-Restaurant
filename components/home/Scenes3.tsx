@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Plus } from "lucide-react";
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { IngredientIcon, PizzaSVG, configToLayers, type ToppingKind } from "@/components/art/pizza";
 import { ProductArt } from "@/components/art/ProductArt";

@@ -17,17 +17,35 @@ function isUnknownCatalogPath(pathname: string) {
 }
 
 /**
- * Language routing without changing public URLs: every page request is rewritten to the
- * prerendered app/[lang] tree chosen by the `cc-lang` cookie (default English). The server
- * therefore renders Arabic text and <html lang="ar" dir="rtl"> directly – no English flash.
- * Keep the cookie name in sync with LOCALE_COOKIE in lib/site.ts.
+ * Locale-prefixed public URLs on top of the prerendered app/[lang] tree:
+ *  - English (default) lives at the root: `/menu` is rewritten to the internal `/en/menu`.
+ *  - Arabic lives under `/ar`: `/ar/menu` maps onto app/[lang] directly, no rewrite needed.
+ *  - `/en/…` is not a public URL; it is permanently redirected to the unprefixed one so there is no duplicate.
+ * The language never depends on the `cc-lang` cookie (that is only a remembered preference), so every URL
+ * serves the same HTML to people, caches and crawlers. See lib/i18n/paths.ts for the client-side mapping.
  */
 export function proxy(request: NextRequest) {
-  const locale = request.cookies.get("cc-lang")?.value === "ar" ? "ar" : "en";
   const { pathname } = request.nextUrl;
+  const m = pathname.match(/^\/(en|ar)(?=\/|$)(.*)$/);
+
+  if (m?.[1] === "en") {
+    const url = request.nextUrl.clone();
+    url.pathname = m[2] || "/";
+    return NextResponse.redirect(url, 308);
+  }
+
+  const locale = m ? "ar" : "en";
+  const rest = m ? m[2] || "/" : pathname;
+  if (isUnknownCatalogPath(rest)) {
+    // `/{locale}/404` is served by app/[lang]/[...missing] and renders the not-found page with status 404
+    const url = request.nextUrl.clone();
+    url.pathname = `/${locale}/404`;
+    return NextResponse.rewrite(url);
+  }
+  if (m) return NextResponse.next();
+
   const url = request.nextUrl.clone();
-  // `/{locale}/404` is served by app/[lang]/[...missing] and renders the not-found page with status 404
-  url.pathname = isUnknownCatalogPath(pathname) ? `/${locale}/404` : `/${locale}${pathname === "/" ? "" : pathname}`;
+  url.pathname = `/en${pathname === "/" ? "" : pathname}`;
   return NextResponse.rewrite(url);
 }
 

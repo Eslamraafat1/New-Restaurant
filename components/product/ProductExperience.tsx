@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Clock, Flame, Share2, ShoppingBag } from "lucide-react";
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
 import { IngredientIcon, type ToppingKind } from "@/components/art/pizza";
@@ -136,7 +136,7 @@ function Stage({ product, config }: { product: Product; config: Config }) {
 }
 
 function ProductBody({ product, editKey }: { product: Product; editKey: string | null }) {
-  const { t, l, money, num } = useI18n();
+  const { t, l, money, num, localeHref } = useI18n();
   const router = useRouter();
   const lines = cartStore.use();
   const { products, categoryOf } = useCatalog();
@@ -164,7 +164,7 @@ function ProductBody({ product, editKey }: { product: Product; editKey: string |
     if (editing) {
       replaceLine(editing.key, product, config, qty, note || undefined);
       toast(t("cart.updated"));
-      router.push("/cart");
+      router.push(localeHref("/cart"));
       return;
     }
     addToCart(product, config, qty, note || undefined);

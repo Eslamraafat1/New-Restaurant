@@ -1,60 +1,40 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, type ReactNode } from "react";
 import { brand } from "@/lib/brand";
 import { LOCALE_COOKIE } from "@/lib/site";
 import type { L10n, Locale } from "@/lib/api/types";
 import { ar, en, type Key } from "./dictionary";
+import { localePath } from "./paths";
 
 const dicts: Record<Locale, Record<Key, string>> = { en, ar };
 
 /**
- * The language is stored in the `cc-lang` cookie. proxy.ts reads it and rewrites the request to
- * app/[lang], so the server already renders the right language and <html lang/dir> – no flash.
- * The server-rendered locale is handed to client components through this context and is used
- * as the hydration snapshot; switching language afterwards is instant on the client.
+ * The language comes from the URL: English at the root (`/menu`), Arabic under `/ar` (`/ar/menu`).
+ * proxy.ts maps both onto the prerendered app/[lang] tree, the root layout renders <html lang dir>
+ * and hands the locale to client components through this context. Switching language is a
+ * navigation to the equivalent URL in the other language (see LanguageSwitch in Header.tsx).
  */
-const ServerLocale = createContext<Locale>("en");
+const UrlLocale = createContext<Locale>("en");
 
 export function LocaleProvider({ locale, children }: { locale: Locale; children: ReactNode }) {
-  return <ServerLocale.Provider value={locale}>{children}</ServerLocale.Provider>;
+  return <UrlLocale.Provider value={locale}>{children}</UrlLocale.Provider>;
 }
 
-let current: Locale | null = null;
-const subs = new Set<() => void>();
-
-function readClientLocale(): Locale {
-  const m = document.cookie.match(new RegExp(`(?:^|; )${LOCALE_COOKIE}=(en|ar)(?:;|$)`));
-  if (m) return m[1] as Locale;
-  // the server rendered <html lang> from the cookie (or the default), so it is the safe fallback
-  return document.documentElement.lang === "ar" ? "ar" : "en";
+/**
+ * Remembers the visitor's choice in the `cc-lang` cookie. It is only a preference: the server never
+ * redirects on it, so every URL always serves the same language to people and crawlers alike.
+ */
+export function rememberLocale(next: Locale) {
+  try {
+    document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=31536000; SameSite=Lax`;
+  } catch {
+    /* cookies blocked – the URL still carries the language */
+  }
 }
-
-export const localeStore = {
-  get(): Locale {
-    if (current === null) current = readClientLocale();
-    return current;
-  },
-  set(next: Locale) {
-    current = next;
-    try {
-      document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=31536000; SameSite=Lax`;
-    } catch {
-      /* cookies blocked – the choice still applies for this page view */
-    }
-    subs.forEach((f) => f());
-  },
-  subscribe(f: () => void) {
-    subs.add(f);
-    return () => {
-      subs.delete(f);
-    };
-  },
-};
 
 function useLocale(): Locale {
-  const serverLocale = useContext(ServerLocale);
-  return useSyncExternalStore(localeStore.subscribe, localeStore.get, () => serverLocale);
+  return useContext(UrlLocale);
 }
 
 export function useI18n() {
@@ -74,12 +54,12 @@ export function useI18n() {
     l,
     money: fmt.money,
     num: fmt.num,
-    setLocale: (v: Locale) => localeStore.set(v),
-    toggleLocale: () => localeStore.set(locale === "en" ? "ar" : "en"),
+    /** Public URL of an internal path in the current language (`/menu` → `/ar/menu` in Arabic). */
+    localeHref: (path: string) => localePath(locale, path),
   };
 }
 
-/** Keeps <html lang/dir> in sync when the language is switched on the client. */
+/** Keeps <html lang/dir> in sync with the URL locale after client-side navigations. */
 export function LocaleSync() {
   const locale = useLocale();
   useEffect(() => {

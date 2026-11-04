@@ -12,6 +12,11 @@ const pages = [
   ['/cart', /Cart/i],
   ['/checkout', /Checkout/i],
   ['/about', /About/i],
+  ['/ar', /CRUST & CRAVE/i],
+  ['/ar/menu', /المنيو/],
+  ['/ar/menu/pizza', /بيتزا/],
+  ['/ar/product/margherita', /مارجريتا/],
+  ['/ar/checkout', /إتمام الطلب/],
 ];
 
 test.describe('Key pages load', () => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowDown, ArrowRight } from "lucide-react";
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { useEffect, useRef } from "react";
 import { IngredientIcon, PizzaSVG, type PizzaLayers } from "@/components/art/pizza";
 import { LogoMark } from "@/components/chrome/Logo";

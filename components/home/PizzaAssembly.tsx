@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { useEffect, useRef } from "react";
 import { PizzaSVG, type PizzaLayers } from "@/components/art/pizza";
 import { Chars } from "@/components/fx/Chars";

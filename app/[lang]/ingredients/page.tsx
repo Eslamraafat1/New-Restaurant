@@ -1,12 +1,7 @@
-import type { Metadata } from "next";
-import { pageMeta } from "@/lib/site";
+import { staticPageMetadata } from "@/lib/page-meta";
 import { IngredientsPage } from "@/components/pages/Info";
 
-export const metadata: Metadata = pageMeta({
-  title: "Ingredients",
-  description: "The ingredients behind Crust & Crave pizzas, crepes and burgers.",
-  path: "/ingredients",
-});
+export const generateMetadata = staticPageMetadata("/ingredients");
 
 export default function Page() {
   return <IngredientsPage />;

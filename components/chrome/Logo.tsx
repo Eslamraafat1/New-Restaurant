@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { brand } from "@/lib/brand";
 
 export function LogoMark({ size = 36 }: { size?: number }) {

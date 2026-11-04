@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Check, Eye, Heart, Plus } from "lucide-react";
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { useState } from "react";
 import { ProductArt } from "@/components/art/ProductArt";
 import { Badge, Rating } from "@/components/chrome/ui";

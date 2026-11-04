@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/lib/i18n/link";
 import { ProductArt } from "@/components/art/ProductArt";
 import { Badge, Rating } from "@/components/chrome/ui";
 import { Modal } from "@/components/chrome/Modal";

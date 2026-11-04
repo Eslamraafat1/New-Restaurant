@@ -8,8 +8,8 @@ import { categories } from "@/data/demo/categories";
 import { getCategories } from "@/lib/api/categories";
 import { getProducts } from "@/lib/api/products";
 import { brand } from "@/lib/brand";
-import { breadcrumbLd, pageMeta } from "@/lib/site";
-import { menuSectionLd } from "@/lib/structured-data";
+import { breadcrumbLd, pageLocale, pageMeta } from "@/lib/site";
+import { menuSectionLd, rootCrumbs } from "@/lib/structured-data";
 
 export async function generateStaticParams() {
   try {
@@ -20,12 +20,16 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/menu/[category]">): Promise<Metadata> {
-  const { category } = await params;
+  const [{ category }, lang] = await Promise.all([params, pageLocale(params)]);
   const c = await findCategory(category);
-  if (!c) return { title: "Not found", robots: { index: false } };
+  if (!c) return { title: lang === "ar" ? "الصفحة غير موجودة" : "Not found", robots: { index: false } };
   return pageMeta({
-    title: `${c.name.en} menu`,
-    description: `${c.tagline.en}. Browse and customise ${c.name.en.toLowerCase()} at ${brand.name}.`,
+    lang,
+    title: lang === "ar" ? `منيو ${c.name.ar}` : `${c.name.en} menu`,
+    description:
+      lang === "ar"
+        ? `${c.tagline.ar}. تصفّح وخصّص ${c.name.ar} في ${brand.nameAr}.`
+        : `${c.tagline.en}. Browse and customise ${c.name.en.toLowerCase()} at ${brand.name}.`,
     path: `/menu/${c.slug}`,
   });
 }
@@ -39,7 +43,7 @@ async function findCategory(slug: string) {
 }
 
 async function CategoryContent({ params }: { params: PageProps<"/[lang]/menu/[category]">["params"] }) {
-  const { category } = await params;
+  const [{ category }, lang] = await Promise.all([params, pageLocale(params)]);
   const c = await findCategory(category);
   if (!c) notFound();
   const products = await getProducts().catch(() => []);
@@ -47,8 +51,8 @@ async function CategoryContent({ params }: { params: PageProps<"/[lang]/menu/[ca
     <>
       <JsonLd
         data={[
-          { "@context": "https://schema.org", ...menuSectionLd(c, products) },
-          breadcrumbLd([{ name: "Home", path: "/" }, { name: "Menu", path: "/menu" }, { name: c.name.en, path: `/menu/${c.slug}` }]),
+          { "@context": "https://schema.org", ...menuSectionLd(c, products, lang) },
+          breadcrumbLd(lang, [...rootCrumbs(lang), { name: c.name[lang], path: `/menu/${c.slug}` }]),
         ]}
       />
       <CategoryHead id={c.id} />
