@@ -100,7 +100,7 @@ Prices, totals, coupons and delivery fees are computed client-side **for display
 |---|---|---|
 | FAQ, ingredient stories, sample reviews | `data/demo/content.ts` | editorial content; move to a CMS/endpoint if needed |
 | Brand name, currency, fees, coupons, contact placeholders | `lib/brand.ts` | `contact` values are placeholders – replace |
-| Cart, wishlist, language, theme | `localStorage` (`lib/store.ts`) | no server session; add accounts if required |
+| Cart, wishlist, theme | `localStorage` (`lib/store.ts`); language in the `cc-lang` cookie | no server session; add accounts if required |
 | Last order shown on `/order` | `localStorage` key `cc-last-order` | fetch `GET /orders/:id` instead if you add order tracking |
 | Admin screen `/admin` | `components/pages/Info.tsx` | **read-only preview, no auth.** Remove it or build a real authenticated admin |
 | Sample branches / reviews | flagged `sample` | replace with real data; map links only render when `mapUrl` is set |
@@ -109,7 +109,7 @@ Opening hours appear in the footer only when `brand.hours` is set. Offer expiry 
 
 ## 5. i18n
 All UI strings: `lib/i18n/dictionary.ts` (en + ar, typed – a missing Arabic key fails the build). Data strings come from `{en, ar}` objects.
-Language is chosen client-side (localStorage); `<html lang/dir>` are set before first paint. Currency is `brand.currency` (EGP) formatted via `Intl`.
+Language is stored in the `cc-lang` cookie; `proxy.ts` rewrites requests to the prerendered `app/[lang]` tree so the server renders the right `<html lang/dir>` and text. Currency is `brand.currency` (EGP) formatted via `Intl`.
 
 ## 6. Verification checklist after wiring the API
 - `NEXT_PUBLIC_USE_DEMO_API=false`, backend running → `/menu` lists backend products, `/product/<slug>` renders.

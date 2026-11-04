@@ -12,7 +12,7 @@ Digital menu · live product customiser · cart & demo checkout · RTL · light/
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![GSAP](https://img.shields.io/badge/GSAP-3.15-0AE448?logo=greensock&logoColor=black)](https://gsap.com/)
 [![Framer Motion](https://img.shields.io/badge/Framer_Motion-14.7-0055FF?logo=framer&logoColor=white)](https://motion.dev/)
-[![Playwright](https://img.shields.io/badge/Playwright-1.48-2EAD33?logo=playwright&logoColor=white)](https://playwright.dev/)
+[![Playwright](https://img.shields.io/badge/Playwright-1.63-2EAD33?logo=playwright&logoColor=white)](https://playwright.dev/)
 <br/>
 [![E2E Tests](https://github.com/Eslamraafat1/New-Restaurant/actions/workflows/e2e.yml/badge.svg)](https://github.com/Eslamraafat1/New-Restaurant/actions/workflows/e2e.yml)
 [![Deployed on Vercel](https://img.shields.io/badge/Deployed_on-Vercel-000000?logo=vercel&logoColor=white)](https://new-restaurant-kappa.vercel.app)
@@ -45,10 +45,12 @@ Digital menu · live product customiser · cart & demo checkout · RTL · light/
 - [Architecture highlights](#architecture-highlights)
 - [SEO & performance](#seo--performance)
 - [Testing & QA](#testing--qa)
+- [Known limitations](#known-limitations)
 - [Project structure](#project-structure)
 - [Getting started](#getting-started)
 - [Deployment](#deployment)
 - [Author](#author)
+- [License](#license)
 
 ## Overview
 
@@ -79,7 +81,7 @@ The front-end is **backend-ready**. All data flows through a typed API layer (`l
 
 ### Internationalisation & RTL
 - Full **English / Arabic** dictionary (`lib/i18n`) with a `useI18n()` hook (`t`, `l`, `money`), and `{ en, ar }` strings throughout the data model.
-- `<html lang>` and `dir="rtl"` switch at runtime. A **pre-hydration script** applies the saved language direction before first paint.
+- **Server-rendered language, no English flash**: the choice is stored in a `cc-lang` cookie. `proxy.ts` rewrites each request (URLs stay the same) to the prerendered `app/[lang]` tree, so Arabic visitors receive Arabic HTML with `<html lang="ar" dir="rtl">` on the first byte. Both languages are fully static; switching language is still instant on the client.
 - Logical CSS properties (`start` / `end`) and a dedicated Arabic typeface (Cairo) alongside Fraunces and Manrope, loaded through `next/font`.
 
 ### Themes
@@ -90,12 +92,16 @@ The front-end is **backend-ready**. All data flows through a typed API layer (`l
 - Every menu category and product page is pre-rendered with `generateStaticParams`, and **Cache Components / Partial Prerendering** stream content behind `Suspense` skeletons.
 - All food art is **hand-built layered SVG** rather than photography, so the catalogue ships no raster images.
 - Fonts are self-hosted through `next/font/google`.
-- A measured fix is documented in [`IMPLEMENTATION_STATUS.md`](IMPLEMENTATION_STATUS.md): an SVG `feTurbulence` grain overlay dropped headless-Chrome frame rate to about 1 FPS. It was replaced with a pre-rendered noise tile, which ran at 60 FPS in the same test.
+- A measured fix from development QA: an SVG `feTurbulence` grain overlay dropped headless-Chrome frame rate to about 1 FPS. It was replaced with a pre-rendered noise tile (`public/noise.png`), which ran at 60 FPS in the same test.
 
 ### SEO
-- Metadata API: a title template (`%s · CRUST & CRAVE`), a site description and a unique title on each route.
-- `generateMetadata` on dynamic routes: product pages get the product's own title and description, and category pages get the category name.
-- Unknown routes, categories and products return a real **HTTP 404**.
+- `metadataBase` + a `pageMeta()` helper (`lib/site.ts`): unique title, description, **canonical URL**, **Open Graph** and **Twitter card** on every route; `generateMetadata` on category and product pages.
+- `app/robots.ts` and `app/sitemap.ts`: the sitemap lists every indexable page, all 9 menu categories and all 32 dishes.
+- Branded share image generated with `next/og` (`app/opengraph-image.tsx`).
+- **JSON-LD**: `Restaurant` + `WebSite` on the home page, `Menu` → `MenuSection` → `MenuItem` (with `Offer` price in EGP and `suitableForDiet`) on the menu, `MenuItem` on product pages, and `BreadcrumbList` on menu, category and product pages. No address, phone, opening hours or ratings are emitted because those are placeholders in this demo.
+- The site URL resolves from `NEXT_PUBLIC_SITE_URL`, then Vercel's production domain, then the production URL, so canonicals can never point at `localhost`.
+- `/admin` (no auth), `/cart`, `/checkout` and `/order` are `noindex` and excluded from the sitemap; `/admin` also sends `X-Robots-Tag: noindex, nofollow`.
+- Unknown routes, categories and products return a real **HTTP 404** (in demo mode the proxy checks the slug before streaming starts).
 
 ### Accessibility
 - **Reduced motion is respected**: GSAP scenes, Lenis, the custom cursor and the intro curtain are turned off, and final states are shown statically.
@@ -116,16 +122,16 @@ The front-end is **backend-ready**. All data flows through a typed API layer (`l
 | Icons | [Lucide React](https://lucide.dev/) | 1.63 |
 | Utilities | `clsx`, `tailwind-merge` | — |
 | Linting | ESLint + `eslint-config-next` (core-web-vitals, typescript) | 9.39 |
-| E2E testing | [Playwright](https://playwright.dev/) | 1.48.2 |
+| E2E testing | [Playwright](https://playwright.dev/) | 1.63.0 |
 | CI / hosting | GitHub Actions · Vercel | — |
 
 ## Architecture highlights
 
-- **App Router** with 17 page routes (`/`, `/menu`, `/menu/[category]`, `/product/[slug]`, `/cart`, `/checkout`, `/order`, `/offers`, `/about`, `/our-story`, `/ingredients`, `/contact`, `/locations`, `/faq`, `/privacy`, `/terms`, `/admin`), plus custom `not-found`, `error` and `global-error` boundaries.
+- **App Router** with 17 page routes (`/`, `/menu`, `/menu/[category]`, `/product/[slug]`, `/cart`, `/checkout`, `/order`, `/offers`, `/about`, `/our-story`, `/ingredients`, `/contact`, `/locations`, `/faq`, `/privacy`, `/terms`, `/admin`), plus custom `not-found`, `error` and `global-error` boundaries. Pages live under `app/[lang]` (the root layout) and are prerendered for `en` and `ar`; `proxy.ts` maps the public URL to the right language from the `cc-lang` cookie.
 - **Cache Components** (`cacheComponents: true`): server components await `params` inside `Suspense` boundaries, so the static shell is served immediately and the dynamic parts stream in.
 - **One data layer** (`lib/api/*`): components never contain URLs. A typed `apiFetch` wrapper adds a 10-second timeout via `AbortController` and turns failures into a typed `ApiError` (`http` / `timeout` / `network`). `NEXT_PUBLIC_USE_DEMO_API` switches between demo data and the real backend.
 - **Typed contract**: `lib/api/types.ts` is the source of truth for every field. Demo Route Handlers in `app/api/*` mirror the REST contract (`/menu`, `/products`, `/products/:id`, `/categories`, `/offers`, `/branches`, `/orders`, `/contact`).
-- **State without a library**: a small `useSyncExternalStore`-based store (`lib/store.ts`) persists cart, coupon, wishlist, language and theme to localStorage and syncs across tabs through the `storage` event. It uses the initial value as the server snapshot, so **hydration never mismatches**.
+- **State without a library**: a small `useSyncExternalStore`-based store (`lib/store.ts`) persists cart, coupon, wishlist and theme to localStorage and syncs across tabs through the `storage` event. It uses the initial value as the server snapshot, so hydration never mismatches. The language store uses the server-rendered locale as its snapshot and persists to a cookie.
 - **Centralised branding**: name, currency, fees, coupons and contact placeholders live in `lib/brand.ts`, and colours are design tokens in `app/globals.css`.
 - **Resilient build**: `generateStaticParams` falls back to bundled demo data if the backend is unreachable at build time.
 
@@ -135,58 +141,67 @@ What is implemented today:
 
 | Concern | Implementation |
 |---|---|
-| Titles & descriptions | Root `metadata` with a title template and per-route titles; `generateMetadata` on product and category pages |
-| Status codes | Unknown routes, categories and products return 404 (`notFound()`) |
+| Titles & descriptions | Title template plus a unique title and description per route; `generateMetadata` on product and category pages |
+| Canonical, Open Graph, Twitter | Absolute canonical, `og:*` and `summary_large_image` on every page; generated 1200×630 share image |
+| Crawling | `robots.txt` (points to the sitemap) and `sitemap.xml` (52 URLs); private/transactional pages are `noindex` |
+| Structured data | `Restaurant`, `WebSite`, `Menu`/`MenuSection`/`MenuItem`, `BreadcrumbList` JSON-LD |
+| Status codes | Unknown routes, categories and products return 404 |
 | Pre-rendering | `generateStaticParams` for every category and product; Partial Prerendering via Cache Components |
 | Fonts | Self-hosted with `next/font` |
 | Images | Vector SVG illustrations, no raster product photos |
-| Theme and locale flash | A pre-hydration script sets `data-theme`, `lang` and `dir` before first paint |
+| Theme and locale flash | Language is server-rendered from a cookie (no flash); a pre-hydration script sets `data-theme` before first paint |
 | Mobile | `viewport-fit=cover` and a colour-scheme-aware `theme-color` |
 
-Planned: `sitemap.xml`, `robots.txt`, Open Graph and Twitter cards, canonical URLs, and `Restaurant` / `Product` JSON-LD structured data.
+Not done: separate public `/ar/...` URLs with `hreflang` (Arabic shares the English URL and is chosen by cookie, so search engines index the English version).
 
 ## Testing & QA
 
 ### Automated E2E tests (Playwright)
 
-The [`e2e/`](e2e) package holds Playwright tests that run against the **live deployment** by default, or against any URL set in `BASE_URL`.
+The [`e2e/`](e2e) package (own `package-lock.json`, Playwright 1.63.0) holds **35 tests**. They run in two projects, **Desktop Chrome** and **Mobile Chrome (Pixel 7)**; the request-level SEO checks run on desktop only, so a full run is **57 test runs**. Motion is set to `reduce` so GSAP/Lenis settle instantly and the flows stay deterministic.
 
 | Suite | What it checks |
 |---|---|
-| Key pages load | `/`, `/menu`, `/menu/pizza`, `/menu/burgers`, `/menu/crepes`, `/offers` and `/product/margherita` return **HTTP 200** with the correct `<title>` |
-| Error handling | An unknown route returns **HTTP 404** |
-
-Each test runs in two projects: **Desktop Chrome** and **Mobile Chrome (Pixel 7)**. On CI, failing tests are retried twice, a trace is recorded on the first retry, and a screenshot is taken on failure.
+| `smoke.spec.js` | 10 key pages return **HTTP 200** with the correct `<title>` and **no console or hydration errors**; an unknown route returns 404 |
+| `flows.spec.js` | Category page shows only that category; **dietary filter and search narrow the results**; **sorting** by price reorders dishes; the menu category rail jumps to a section; the **customiser updates the live price** (140 → 195 → 210 → 125); **add to cart → header count → cart subtotal and coupon → checkout totals incl. delivery fee → validation errors and focus → demo order success** with the cart cleared |
+| `preferences.spec.js` | **Language switch** sets `lang="ar" dir="rtl"`, writes the cookie, and the **reloaded server HTML is already Arabic**; switching back restores `ltr`; **theme toggle** persists across reloads; unknown page/product/category return **404** with `noindex` |
+| `seo.spec.js` | `robots.txt` references an absolute sitemap; `sitemap.xml` lists all categories and dishes and no private pages; canonical (absolute `https`, never localhost), `og:*` and Twitter tags on 5 page types; OG image renders; `/admin` and `/checkout` are `noindex`; JSON-LD parses and contains `Restaurant`, `Menu` (9 sections), `MenuItem` with price and a 4-level `BreadcrumbList` |
 
 ```bash
 cd e2e
-npm install
+npm ci
 npx playwright install chromium
 npm test                                   # against the live site
-BASE_URL=http://localhost:3000 npm test    # against a local server
+LOCAL=1 npm test                           # starts the local production build (run `npm run build` in the root first)
+BASE_URL=http://localhost:3000 npm test    # against any running server
 npm run report                             # open the HTML report
 ```
 
 ### Continuous integration
 
-[`.github/workflows/e2e.yml`](.github/workflows/e2e.yml) runs the suite on every push to `master`, on every pull request and on manual dispatch (Node 20, Chromium). The Playwright HTML report is uploaded as a build artifact and kept for 14 days.
+[`.github/workflows/e2e.yml`](.github/workflows/e2e.yml) runs on every push to `master`, on every pull request and on manual dispatch (Node 20): `npm ci` → `npm run lint` → `npm run typecheck` → `npm run build` → the Playwright suite against the **locally started production build**. The HTML report is uploaded as an artifact for 14 days. A separate manual job (`workflow_dispatch` with `target=live`) runs the same suite against the live deployment.
 
-### Manual and scripted QA
+### Manual and scripted QA during development
 
-Recorded in [`IMPLEMENTATION_STATUS.md`](IMPLEMENTATION_STATUS.md):
+Earlier development passes (headless Chrome on production builds, not re-run here) recorded 252 layout checks (18 pages × 7 widths from 320 to 1920 px × EN/AR) with 0 horizontal scrolls and 0 console errors, and fixed a horizontal scroll at 1024 px, a sticky-bar overflow at 320 px and header-logo wrapping at 320 px. Not yet verified: real devices, screen readers, Safari and Firefox.
 
-- 252 scripted layout checks on a production build (18 pages × 7 widths from 320 to 1920 px × EN/AR), with 0 horizontal scrolls, 0 unclipped overflow and 0 console errors.
-- A full order flow in demo mode: customised pizza (140 + ranch 10 + extra pepperoni 15 = **165**) → cart → checkout validation → order accepted → cart cleared → success screen.
-- Live-mode verification with the demo Route Handlers acting as the backend, which caught and fixed a prerender crash on `/admin`.
-- Bugs found and fixed during QA include a horizontal scroll at 1024 px, a sticky-bar button overflowing at 320 px and the header logo wrapping at 320 px.
-- `next build`, `eslint` (0 problems) and `tsc --noEmit` (0 errors).
+## Known limitations
+
+- Orders, payments, auth and persistence are not implemented: checkout is a demo and `/admin` is an unauthenticated preview (labelled on the page and `noindex`).
+- Branches, contact details, ratings/reviews and legal text are placeholders or sample data.
+- Food art is layered SVG illustration, not photography.
+- Arabic has no separate URL (see SEO above).
 
 ## Project structure
 
 ```text
 .
-├── app/                    # App Router routes, layouts, error boundaries, globals.css (design tokens)
-│   └── api/                # Demo Route Handlers mirroring the REST contract
+├── app/
+│   ├── [lang]/             # Root layout + all pages, prerendered for en and ar
+│   ├── api/                # Demo Route Handlers mirroring the REST contract
+│   ├── robots.ts, sitemap.ts, opengraph-image.tsx
+│   └── globals.css         # Design tokens
+├── proxy.ts                # Cookie-based language rewrite + demo-mode 404s
 ├── components/
 │   ├── art/                # Layered SVG food illustrations (live pizza preview, crepe, burger)
 │   ├── cart/               # Cart, checkout, order success
@@ -203,6 +218,8 @@ Recorded in [`IMPLEMENTATION_STATUS.md`](IMPLEMENTATION_STATUS.md):
 │   ├── brand.ts            # Brand config: name, currency, fees, coupons
 │   ├── cart.ts, store.ts   # Persisted cart / wishlist external store
 │   ├── pricing.ts          # Price calculation and option validation
+│   ├── site.ts             # Site URL, per-page metadata helper, JSON-LD helpers
+│   ├── structured-data.ts  # schema.org builders
 │   └── theme.tsx, gsap.ts  # Theme and GSAP / Lenis helpers
 ├── e2e/                    # Playwright tests and config
 ├── docs/                   # Backend integration guide, screenshots
@@ -227,6 +244,7 @@ npm run dev                  # http://localhost:3000
 |---|---|---|
 | `NEXT_PUBLIC_USE_DEMO_API` | `true` | `true` serves bundled demo data and simulates orders in the browser; `false` calls the real backend |
 | `NEXT_PUBLIC_API_BASE_URL` | `http://localhost:8000/api` | Example address of the real REST API (no trailing slash) |
+| `NEXT_PUBLIC_SITE_URL` | production URL | Absolute site origin for canonical URLs, sitemap, robots and JSON-LD. Optional: falls back to Vercel's production domain, then `https://new-restaurant-kappa.vercel.app` |
 
 These are build-time `NEXT_PUBLIC_*` values, so restart the dev server or rebuild after changing them.
 
@@ -238,8 +256,8 @@ These are build-time `NEXT_PUBLIC_*` values, so restart the dev server or rebuil
 | `npm run build` | Create a production build |
 | `npm start` | Serve the production build |
 | `npm run lint` | Run ESLint |
-| `npx tsc --noEmit` | Type-check the project |
-| `cd e2e && npm test` | Run the Playwright E2E suite |
+| `npm run typecheck` | Generate route types and type-check the project |
+| `cd e2e && LOCAL=1 npm test` | Run the Playwright E2E suite against the local build |
 
 ## Deployment
 
@@ -255,6 +273,10 @@ To connect a real backend, set `NEXT_PUBLIC_USE_DEMO_API=false` and `NEXT_PUBLIC
 - LinkedIn: [linkedin.com/in/eslamraafat-dev](https://www.linkedin.com/in/eslamraafat-dev/)
 - GitHub: [@Eslamraafat1](https://github.com/Eslamraafat1)
 - Email: [eslamraafat736@gmail.com](mailto:eslamraafat736@gmail.com)
+
+## License
+
+[MIT](LICENSE) © 2026 Eslam Raafat. Crust & Crave is a fictional brand.
 
 ---
 
