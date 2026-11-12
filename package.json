@@ -1,6 +1,27 @@
 {
   "name": "crust-and-crave",
   "version": "0.1.0",
+  "author": "Eslam Raafat <https://new-portfolio-ashy-xi.vercel.app>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Eslamraafat1/New-Restaurant.git"
+  },
+  "homepage": "https://new-restaurant-kappa.vercel.app",
+  "bugs": {
+    "url": "https://github.com/Eslamraafat1/New-Restaurant/issues"
+  },
+  "keywords": [
+    "nextjs",
+    "react",
+    "gsap",
+    "framer-motion",
+    "tailwindcss",
+    "typescript",
+    "smooth-scroll",
+    "arabic",
+    "rtl",
+    "portfolio"
+  ],
   "private": true,
   "description": "Bilingual (EN/AR, RTL) restaurant storefront demo built with Next.js 16 – customisable menu, cart and demo checkout.",
   "license": "MIT",
